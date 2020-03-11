@@ -62,7 +62,7 @@ author:
       url: "https://github.com/meisinger"
 
 # Build settings
-remote_theme: mmistakes/minimal-mistakes
+theme: minimal-mistakes-jekyll
 minimal_mistakes_skin: "air"
 
 plugins:
@@ -80,18 +80,6 @@ whitelist:
 
 include:
   - _pages
-
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
 
 permalink: /:categories/:title/
 paginate: 5
