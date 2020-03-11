@@ -62,7 +62,7 @@ author:
       url: "https://github.com/meisinger"
 
 # Build settings
-theme: minimal-mistakes-jekyll
+remote_theme: mmistakes/minimal-mistakes
 minimal_mistakes_skin: "air"
 
 plugins:
