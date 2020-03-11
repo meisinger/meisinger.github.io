@@ -61,8 +61,7 @@ author:
       icon: "fab fa-fw fa-github-square"
       url: "https://github.com/meisinger"
 
-# Build settings
-theme: minimal-mistakes-jekyll
+remote_theme: "mmistakes/minimal-mistakes@4.19.0"
 minimal_mistakes_skin: "air"
 
 plugins:
@@ -71,6 +70,7 @@ plugins:
   - jekyll-gist
   - jekyll-feed
   - jekyll-include-cache
+
 whitelist:
   - jekyll-paginate
   - jekyll-sitemap
