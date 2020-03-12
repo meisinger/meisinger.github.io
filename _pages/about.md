@@ -4,15 +4,20 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+Well, we've been here before.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+I've actually been here for the last twenty years.
+Not doing the same exact thing over that time but oddly similar.
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+We have a tendency to rely on what we have learned in the past to help guide us into the future.
 
+New things can be scary. Especially when we have nothing to base the new thing off of from our past.
 
-[jekyll-organization]: https://github.com/jekyll
+In those scenarios, we sometimes fail.
+
+If you learn from your failures then your future opens up as it is now a part of your past.
+
+In those scenarios, failure is an option.
+
+The sage was right, "Do. Or Do Not. There is no try."
+Don't just try something new. Do something new.
