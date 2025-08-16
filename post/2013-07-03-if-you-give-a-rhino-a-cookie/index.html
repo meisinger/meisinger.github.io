@@ -1,0 +1,59 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="If you give a Rhino a cookie…"><meta property="og:title" content="If you give a Rhino a cookie…"><meta property="twitter:title" content="If you give a Rhino a cookie…"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2013-07-03-if-you-give-a-rhino-a-cookie/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>If you give a Rhino a cookie… - Meisinger Two</title><link rel=canonical href=/post/2013-07-03-if-you-give-a-rhino-a-cookie/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>If you give a Rhino a cookie…</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+2 minute read</h6></section><section class=content><p>There is a book that I use to read to my daughter titled “If You Give a Mouse a Cookie.”
+It’s a funny book which takes the reader through a circular pattern of what happens if you give a mouse a cookie.
+My daughter would often wait till the end of the story to ask what happened next.
+In my mind this was a clever attempt to have me read the book again (and again).
+There were sometimes, however, I would re-read the story; especially after a loving “pleeaaassseeee”</p><p>As I have been “healing” the existing unit tests, this book came to mind as I begin to see a “circular pattern.”
+Granted this doesn’t produce anything wrong or exhibit poor code but…
+I can see where these “circular patterns” have lead to confusion and claims of Rhino Mocks being overly complex.</p><p>A good example of this can be found with the <strong>Expect</strong> and <strong>SetupResult</strong> utility classes versus the <code>Expect</code> extension method.</p><p>The <code>Expect</code> extension method was added as a part of the Arrange Act Assert (AAA) syntax.
+Since I prefer the AAA syntax, this is the method that I use the most. Let’s take a quick look at an example:</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Test_One() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> mock = MockRepository.GenerateMock&lt;ISomeClass&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  mock.Expect(x =&gt; x.SayHello())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#c3e88d>&#34;Hello World&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> hello = mock.SayHello();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  Assert.Equal(<span style=color:#c3e88d>&#34;Hello World&#34;</span>, hello);
+</span></span><span style=display:flex><span>  mock.VerifyAllExpectations();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Unfortunately there is nothing stopping a developer from using one of the other two approaches.
+The following two examples show how the <strong>Expect</strong> and <strong>SetupResult</strong> utility classes are (basically) interchangeable.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Test_Two() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> mock = MockRepository.GenerateMock&lt;ISomeClass&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  Expect.Call(mock.SayHello())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#c3e88d>&#34;Hello World&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> hello = mock.SayHello();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  Assert.Equal(<span style=color:#c3e88d>&#34;Hello World&#34;</span>, hello);
+</span></span><span style=display:flex><span>  mock.VerifyAllExpectations();
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#82aaff>
+</span></span></span><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Test_Three() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> mock = MockRepository.GenerateMock&lt;ISomeClass&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  SetupResult.For(mock.SayHello())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#c3e88d>&#34;Hello World&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> hello = mock.SayHello();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  Assert.Equal(<span style=color:#c3e88d>&#34;Hello World&#34;</span>, hello);
+</span></span><span style=display:flex><span>  mock.VerifyAllExpectations();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>What isn’t obvious, however, is that these two tests will fail. The two worlds simply don’t play nice together.
+It is true that they can co-exist and you could modify the tests above to make them pass but… is it worth it?</p><p>In other words, if you give a developer a cookie…</p><p>Rhino Mocks will be going on a diet and won’t be offering any more cookies.
+No matter how lovingly I hear “pleeaaassseeee”</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/rhino-mocks title="Rhino Mocks">Rhino Mocks</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/development title=Development>Development</a></div></div><h6 data-label=meta>Posted on Wednesday, July 3, 2013</h6></section><section class=navigation><a href=/post/2013-06-27-rhino-mocks-unit-tests-let-the-healing-begin/>Previous
+</a><a href=/post/2013-07-25-simplifying-the-rhino-mocks-code-base/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

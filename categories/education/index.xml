@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Education on Meisinger Two</title><link>https://meisinger.github.io/categories/education/</link><description>Recent content in Education on Meisinger Two</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Thu, 30 Apr 2009 00:00:00 +0000</lastBuildDate><atom:link href="https://meisinger.github.io/categories/education/index.xml" rel="self" type="application/rss+xml"/><item><title>SOLID - Liskov Substitution Principle (LSP)</title><link>https://meisinger.github.io/post/2009-04-30-solid-liskov-substitution-principle-lsp/</link><pubDate>Thu, 30 Apr 2009 00:00:00 +0000</pubDate><guid>https://meisinger.github.io/post/2009-04-30-solid-liskov-substitution-principle-lsp/</guid><description>&lt;p>As stated previously… I am getting (or trying to get) back to basics.&lt;/p>
+&lt;p>It is my belief that developers have to often times refactor the way they think and the way they approach things from time to time to
+make sure that the basics and principles are still strong.&lt;/p>
+&lt;p>So let’s take a look at one of the principles in SOLID; Liskov Substitution Principle (LSP)&lt;/p>
+&lt;p>LSP states:&lt;/p>
+&lt;blockquote>
+&lt;p>If for each object o1 of type S there is an object o2 of type T such that for all programs P defined in terms of T, the behavior of P is unchanged when o1 is substituted for o2 then S is a subtype of T&lt;/p></description></item><item><title>SOLID - Open Closed Principle (OCP)</title><link>https://meisinger.github.io/post/2009-04-29-solid-open-closed-principle-ocp/</link><pubDate>Wed, 29 Apr 2009 00:00:00 +0000</pubDate><guid>https://meisinger.github.io/post/2009-04-29-solid-open-closed-principle-ocp/</guid><description>&lt;p>As stated previously&amp;hellip; I am getting (or trying to get) back to basics.&lt;/p>
+&lt;p>It is my belief that developers have to often times refactor the way they think and the way they approach things from time to time to
+make sure that the basics and principles are still strong.&lt;/p>
+&lt;p>So let&amp;rsquo;s take a look at one of the principles in SOLID; Open Closed Principle (OCP)&lt;/p>
+&lt;p>OCP simply states:&lt;/p>
+&lt;blockquote>
+&lt;p>Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification&lt;/p></description></item><item><title>SOLID - Single Responsibility Principle (SRP)</title><link>https://meisinger.github.io/post/2009-04-29-solid-single-responsibility-principle-srp/</link><pubDate>Wed, 29 Apr 2009 00:00:00 +0000</pubDate><guid>https://meisinger.github.io/post/2009-04-29-solid-single-responsibility-principle-srp/</guid><description>&lt;p>As stated previously&amp;hellip; I am getting (or trying to get) back to basics.&lt;/p>
+&lt;p>It is my belief that developers have to often times refactor the way they think and the way they approach things from time to time to
+make sure that the basics and the principles are still strong.&lt;/p>
+&lt;p>So let&amp;rsquo;s take a look at one of the principles in SOLID; Single Responsibility Principle (SRP)&lt;/p>
+&lt;p>SRP simply states:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;em>There should be one and only one reason for a class to change&lt;/em>&lt;/p></description></item><item><title>Dependency Injection - Why should we care?</title><link>https://meisinger.github.io/post/2008-04-03-dependency-injection-why-should-we-care/</link><pubDate>Thu, 03 Apr 2008 00:00:00 +0000</pubDate><guid>https://meisinger.github.io/post/2008-04-03-dependency-injection-why-should-we-care/</guid><description>&lt;p>In my previous post we covered (briefly) Inversion of Control (IoC) and Dependency Injection.
+In this post we will discuss why we should use Dependency Injection and how it can improve our every day coding life.&lt;/p>
+&lt;p>Again&amp;hellip; from my previous post we found that we can inject objects and values a particular class is dependant upon through the
+constructor or through property setters.
+But this really begs the question of why you would want to do that? Well there are a couple of benefits from doing this:&lt;/p></description></item><item><title>Inversion of Control and Dependency Injection</title><link>https://meisinger.github.io/post/2008-03-26-inversion-of-control-and-dependency-injection/</link><pubDate>Wed, 26 Mar 2008 00:00:00 +0000</pubDate><guid>https://meisinger.github.io/post/2008-03-26-inversion-of-control-and-dependency-injection/</guid><description>&lt;p>MVC has not only brought about a change in how we think about designing and building web applications on the .Net framework but it has also reminded
+most of us about the Inversion of Control (IoC) and Dependency Injection patterns.
+While most of us have used these patterns before (without even knowing about it), I think that it is very important to understand what these
+patterns are, how to use them, and why they are important not only with MVC but in everyday &amp;ldquo;coding&amp;rdquo; life.&lt;/p></description></item></channel></rss>

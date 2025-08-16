@@ -1,0 +1,312 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="Handling Validation Errors in MVC (a different approach)"><meta property="og:title" content="Handling Validation Errors in MVC (a different approach)"><meta property="twitter:title" content="Handling Validation Errors in MVC (a different approach)"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2008-07-17-handling-validation-errors-in-mvc-a-different-approach/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>Handling Validation Errors in MVC (a different approach) - Meisinger Two</title><link rel=canonical href=/post/2008-07-17-handling-validation-errors-in-mvc-a-different-approach/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>Handling Validation Errors in MVC (a different approach)</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+9 minute read</h6></section><section class=content><p>I just got done reading <a href=http://weblogs.asp.net/scottgu/default.aspx>Scott Guthrie</a>&rsquo;s and <a href=http://haacked.com/>Phil Haack&rsquo;s</a> posts on the
+<a href=http://haacked.com/archive/2008/07/16/aspnetmvc-codeplex-preview4.aspx>MVC Preview 4 release</a> and there was one little piece in the &ldquo;What&rsquo;s Next&rdquo;
+section that really peeked my interest. As it turns out the MVC guys are figuring out how to tackle the problem with handling validation errors and
+reporting them back to the user. How great is that? I don&rsquo;t know about you but validation errors are one of the worst things to have to deal with
+when it comes to a web based application.</p><p>As we all know you should never rely on client side validation and you should always validate input (especially user input) prior to calling any business methods
+or database calls. My problem has always been with trying to get the validation messages back to the client. I am always determined to have my validation routines
+in my business layer. But then comes time to report validation errors back to the client and I end up sticking them in the code behind.
+Sure I might (emphasis on might) create a utility or helper class but then the routines become more and more specific and less and less common and I am right back
+to sticking them in the code behind.</p><p>Where else can you put them since you not only have access to the control but you also have all the tools you need to render the output?</p><p>While I have been playing with MVC I have found myself once again struggling with sending validation messages back to the user.
+This time, however, I decided to try a few different techniques and one has proven to work well (for me at least).</p><p>I first started off creating a class to store my validation messages. Since my primary focus is capturing form related validation errors
+I decided to add a <strong>PropertyInfo</strong> property that will give me some more context later on if I need it.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>ValidatorDetail</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> Message { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> PropertyInfo Property { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> IList&lt;ValidatorDetail&gt; Details { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>So now that I have a class that contains a validation message with some extra info layered in I turn my attention to how to store the errors.
+At first I decided to make a single collection that would be used as the return type of my validation routines but quickly found it to be too restrictive.
+I decided to leverage the <strong>HttpContext.Items</strong> collection and the <strong>CallContext</strong> class instead. The <strong>HttpContext.Items</strong> collection for web based usage
+and the <strong>CallContext</strong> for unit testing. To isolate myself from these details I created a little wrapper class to manage the switching between web usage and unit testing.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>ThreadContext</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> T Get&lt;T&gt;(<span style=color:#4fd6be>string</span> name) <span style=color:#c099ff>where</span> T : <span style=color:#c099ff>class</span>
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    HttpContext context = HttpContext.Current;
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (context == <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> CallContext.LogicalGetData(name) <span style=color:#c099ff>as</span> T;
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>else</span>
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> context.Items[name] <span style=color:#c099ff>as</span> T;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> Set&lt;T&gt;(<span style=color:#4fd6be>string</span> name, T <span style=color:#c099ff>value</span>)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    HttpContext context = HttpContext.Current;
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (context == <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>      CallContext.LogicalSetData(name, <span style=color:#c099ff>value</span>);
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>else</span>
+</span></span><span style=display:flex><span>      context.Items.Add(name, <span style=color:#c099ff>value</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> FreeNamedDataSlot(<span style=color:#4fd6be>string</span> name)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    HttpContext context = HttpContext.Current;
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (context == <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>      CallContext.FreeNamedDataSlot(name);
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>else</span>
+</span></span><span style=display:flex><span>    context.Items.Remove(name);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>This class uses generic methods so I can strongly type the objects being stored. With that out of the way I created another class specific to my validation
+storage which does nothing more than make calls to the <strong>ThreadContext</strong> class.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>ValidationStorage</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>readonly</span> <span style=color:#4fd6be>string</span> storageName = <span style=color:#c3e88d>&#34;ValidationContext&#34;</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> Validator Current
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>get</span> { <span style=color:#c099ff>return</span> ThreadContext.Get&lt;Validator&gt;(storageName); }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#4fd6be>bool</span> Exists()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> (Current != <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> SetStorage(Validator <span style=color:#c099ff>value</span>)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    ThreadContext.Set&lt;Validator&gt;(storageName, <span style=color:#c099ff>value</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> FreeNamedDataSlot()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    ThreadContext.FreeNamedDataSlot(storageName);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Finally I create a class that handles the addition and retrieval of the validation messages. Let&rsquo;s first take a look at the constructor for this class.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Validator</span> : IDisposable
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// members</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> Validator()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    Details = <span style=color:#c099ff>new</span> List&lt;ValidatorDetail&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (Exists)
+</span></span><span style=display:flex><span>      Parent = ValidatorStorage.Current;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    ValidatorStorage.SetStorage(<span style=color:#c099ff>this</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// methods</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// idispose</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>As you can see I first create a new collection to store the validation messages. Next I check to see if a <strong>ValidationStorage</strong> class already exists and if
+so I set the existing instance to the <em>Parent</em> property (more on this later). Finally I make the instance the <em>Current</em> object in the <strong>ValidationStorage</strong> class.
+I could have easily used a Stack of Validator but rather than popping and pushing I decided to take this approach instead.</p><p>Now let&rsquo;s turn our attention to the Dispose method.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Validator</span> : IDisposable
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// members</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// constructor</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// methods</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Dispose()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (Parent != <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      ((List&lt;ValidatorDetail&gt;)Parent.Details).AddRange(Details);
+</span></span><span style=display:flex><span>      ValidationStorage.SetStorage(Parent);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>else</span>
+</span></span><span style=display:flex><span>      ValidationStorage.FreeNamedDataSlot();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>As you can see here when I dispose the <strong>Validator</strong> object I check to see if the instance has a <em>Parent</em> and if it does I take it&rsquo;s <em>Details</em> and add
+them to _Parent._<em>Details</em>.</p><p>Now on to the properties. Nothing much going on here but in order to understand what the methods are doing you will need to know the properties that are available.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Validator</span> : IDisposable
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> IList&lt;ValidatorDetail&gt; Details { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>private</span> <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>bool</span> FailedValidation { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>private</span> <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> Validator Parent { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>private</span> <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> Validator Current
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>get</span> { <span style=color:#c099ff>return</span> ValidatorStorage.Current; }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#4fd6be>bool</span> Exists
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>get</span> { <span style=color:#c099ff>return</span> ValidatorStorage.Exists(); }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#4fd6be>bool</span> Failed
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>get</span> 
+</span></span><span style=display:flex><span>    { 
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> (Current != <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>        ? Current.FailedValidation
+</span></span><span style=display:flex><span>        : <span style=color:#ffc777>false</span>;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// constructor</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// methods</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// idispose</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The <em>Current</em> and <em>Exists</em> properties make calls to the <strong>ValidationStorage</strong> class. The <em>Failed</em> property will return &ldquo;false&rdquo; if a <strong>Validator</strong> does not exist
+in the <strong>ValidationStorage</strong>. Later on you get a better understand of why these properties are static.</p><p>On to the instance methods.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Validator</span> : IDisposable
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// members</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// constructor</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> AddDetail(ValidatorDetail detail)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    AddDetail(detail, <span style=color:#ffc777>false</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> AddDetail(ValidatorDetail detail, <span style=color:#4fd6be>bool</span> inError)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    Details.Add(detail);
+</span></span><span style=display:flex><span>    FailedValidation = (inError ? <span style=color:#ffc777>true</span> : FailedValidation);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>bool</span> HasMessage(<span style=color:#4fd6be>string</span> propertyName)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> Details.AsQueryable()
+</span></span><span style=display:flex><span>      .Any(p =&gt; p.Property.Name == propertyName);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> GetMessage(<span style=color:#4fd6be>string</span> propertyName)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> Details.AsQueryable()
+</span></span><span style=display:flex><span>      .Where(p =&gt; p.Property.Name == propertyName)
+</span></span><span style=display:flex><span>      .Select(p =&gt; p.Message)
+</span></span><span style=display:flex><span>      .SingleOrDefault();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> IList&lt;<span style=color:#4fd6be>string</span>&gt; GetMessages(<span style=color:#4fd6be>string</span> propertyName)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> Details.AsQueryable()
+</span></span><span style=display:flex><span>      .Where(p =&gt; p.Property.Name == propertyName)
+</span></span><span style=display:flex><span>      .Select(p =&gt; p.Message)
+</span></span><span style=display:flex><span>      .ToList();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// idispose</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The <em>HasMessages</em> method allows me to check to see if I have any <strong>ValidationDetail</strong> for a given property by name.
+And if there are messages then I can call <em>GetMessage</em> or <em>GetMessages</em>.</p><p>Finally the static methods. These methods are what will be accessed from within the validation routines.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Validator</span> : IDisposable
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// members</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// constructor</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> Warn(ValidatorDetail detail)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (!Exists)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>new</span> Validator();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    Current.AddDetail(detail);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> Error(ValidatorDetail detail)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (!Exists)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>new</span> Validator();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    Current.AddDetail(detail, <span style=color:#ffc777>true</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> <span style=color:#c099ff>void</span> Exception(Exception ex, <span style=color:#4fd6be>string</span> message)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (!Exists)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>new</span> Validator();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    StringBuilder buffer = <span style=color:#c099ff>new</span> StringBuilder();
+</span></span><span style=display:flex><span>    buffer.AppendLine(message);
+</span></span><span style=display:flex><span>    buffer.AppendLine(ex.Message);
+</span></span><span style=display:flex><span>    buffer.AppendLine(ex.StackTrace);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    ValidatorDetail detail = <span style=color:#c099ff>new</span> ValidatorDetail
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      Message = buffer.ToString()
+</span></span><span style=display:flex><span>    };
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    Current.AddDetail(detail, <span style=color:#ffc777>true</span>);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// idispose</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Thee methods add the <strong>ValidationDetail</strong> object to the <em>Details</em> collection. Prior to adding it, however, I check to see if there is an existing <strong>Validator</strong>
+available to use and if not I new up a new instance. The <em>Error</em> and <em>Exception</em> methods will also pass in a boolean to the <em>AddDetail</em> method to indicate that
+validation has failed.</p><p>So now let&rsquo;s take a look at how to use this. For simplicity assume that there is a controller that performs some basic validation routines against a simple model.
+Let&rsquo;s first take a look at the model.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>UserDataModel</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> UserName { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> FirstName { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> LastName { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> EmailAddress { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>int?</span> Age { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>string</span> JobTitle { <span style=color:#c099ff>get</span>; <span style=color:#c099ff>set</span>; }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The controller then needs to have a few validation routines so let&rsquo;s look at those now.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>private</span> <span style=color:#c099ff>void</span> ValidateUserData(UserDataModel userData)
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>if</span> (<span style=color:#4fd6be>string</span>.IsNullOrEmpty(userData.FirstName))
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    Validator.Error(<span style=color:#c099ff>new</span> ValidatorDetail
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      Message = <span style=color:#c3e88d>&#34;First Name cannot be empty.&#34;</span>,
+</span></span><span style=display:flex><span>      Property = <span style=color:#c099ff>typeof</span>(UserDataModel).GetProperty(<span style=color:#c3e88d>&#34;FirstName&#34;</span>)
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>if</span> (<span style=color:#4fd6be>string</span>.IsNullOrEmpty(userData.LastName))
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    Validator.Error(<span style=color:#c099ff>new</span> ValidatorDetail
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      Message = <span style=color:#c3e88d>&#34;Last Name cannot be empty.&#34;</span>,
+</span></span><span style=display:flex><span>      Property = <span style=color:#c099ff>typeof</span>(UserDataModel).GetProperty(<span style=color:#c3e88d>&#34;LastName&#34;</span>)
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>if</span> (<span style=color:#4fd6be>string</span>.IsNullOrEmpty(userData.EmailAddress))
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    Validator.Error(<span style=color:#c099ff>new</span> ValidatorDetail
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      Message = <span style=color:#c3e88d>&#34;Email Address cannot be empty.&#34;</span>,
+</span></span><span style=display:flex><span>      Property = <span style=color:#c099ff>typeof</span>(UserDataModel).GetProperty(<span style=color:#c3e88d>&#34;EmailAddress&#34;</span>)
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>As you can see here when a validation error occurs I simply call the static method <em>Error</em> and that&rsquo;s it.
+But how does it convey the messages back to the client? This can bee seen in the following code.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> ActionResult Save()
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  UserDataModel userData = <span style=color:#c099ff>new</span> UserDataModel();
+</span></span><span style=display:flex><span>  BindingHelperExtensions.UpdateFrom(userData, Request.Form);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ValidateUserData(userData);
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>if</span> (Validator.Failed)
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> View(<span style=color:#c3e88d>&#34;Edit&#34;</span>, userData);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>return</span> View(<span style=color:#c3e88d>&#34;View&#34;</span>, userData.UserName);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>After the controller calls the validation routines it makes a call to the static <em>Failed</em> property of the <strong>Validator</strong> class which will
+indicate whether or not validation has failed (obviously). If it has failed validation then I simply render the <em>Edit</em> view again. Within
+the <em>Edit</em> view a check is made to see if a <strong>Validator</strong> exists using the <em>Exists</em> property and if so the the <strong>ValidationDetail</strong> objects
+can be blindly displayed or a check against per property can be made for a more contextual error messages.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-fallback data-lang=fallback><span style=display:flex><span>&lt;div class=&#34;label&#34;&gt;First Name:&lt;/div&gt;
+</span></span><span style=display:flex><span>&lt;div&lt;%= Html.TextBox(&#34;FirstName&#34;, ViewData.Model.FirstName); %&gt;&lt;/div&gt;
+</span></span><span style=display:flex><span>&lt;div class=&#34;message&#34;&gt;
+</span></span><span style=display:flex><span>  &lt;%
+</span></span><span style=display:flex><span>    if (Validator.Failed &amp;&amp; Validator.Current.HasMessage(&#34;FirstName&#34;))
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      Response.Write(Validator.Current.GetMessage(&#34;FirstName&#34;));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  %&gt;
+</span></span><span style=display:flex><span>&lt;/div&gt;
+</span></span></code></pre></div><p>One key thing that I think really makes this work well is the ability that this gives to call the <strong>Validator</strong> from almost anywhere in my code.
+Validation routines can now reside within the business layer like they should. And since the <strong>ThreadContext</strong> is in place web services can use
+and implement the same checks that are done in the controller.</p><p>While I think this does the job I also feel that there can be some things improved upon or added to really make it shine. For instance:</p><ul><li>Adding a severity property which would indicate if the client has entered something really harmful and allow for an exception page to be rendered</li><li>Changing the <em>Details</em> collection to a <strong>Dictionary</strong> to easily store multiple validation errors per property or data element</li><li>Add an Html extension method to deal with the checking and displaying of validation messages</li></ul><p>Any ideas or comments are welcomed.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/asp.net title=ASP.Net>ASP.Net</a></div><div data-type=taxonomy><a href=/tags/mvc title=MVC>MVC</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/development title=Development>Development</a></div></div><h6 data-label=meta>Posted on Thursday, July 17, 2008</h6></section><section class=navigation><a href=/post/2008-04-18-new-aspnet-mvc-source-drop/>Previous
+</a><a href=/post/2009-03-12-nothing-lost-but-time/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

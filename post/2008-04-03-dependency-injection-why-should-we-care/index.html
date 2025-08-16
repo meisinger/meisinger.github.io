@@ -1,0 +1,140 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="Dependency Injection - Why should we care?"><meta property="og:title" content="Dependency Injection - Why should we care?"><meta property="twitter:title" content="Dependency Injection - Why should we care?"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2008-04-03-dependency-injection-why-should-we-care/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>Dependency Injection - Why should we care? - Meisinger Two</title><link rel=canonical href=/post/2008-04-03-dependency-injection-why-should-we-care/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>Dependency Injection - Why should we care?</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+6 minute read</h6></section><section class=content><p>In my previous post we covered (briefly) Inversion of Control (IoC) and Dependency Injection.
+In this post we will discuss why we should use Dependency Injection and how it can improve our every day coding life.</p><p>Again&mldr; from my previous post we found that we can inject objects and values a particular class is dependant upon through the
+constructor or through property setters.
+But this really begs the question of why you would want to do that? Well there are a couple of benefits from doing this:</p><ol><li>Identifying dependencies for a particular class becomes easier</li><li>Inheritance fully describes dependencies</li><li>Dependencies become easier to test, mock or stub</li></ol><p>So lets take each of these reasons one by one and give some brief examples. Consider the following class as an example:</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Employee</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> Employee() {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>static</span> Employee GetEmployeeById(<span style=color:#4fd6be>int</span> id)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    Employee employee = <span style=color:#c099ff>new</span> Employee();
+</span></span><span style=display:flex><span>    <span style=color:#444a73;font-style:italic>//perform database query here</span>
+</span></span><span style=display:flex><span>    <span style=color:#444a73;font-style:italic>//populate employee</span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> employee;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>//...</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>EmployeeRate</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>protected</span> Employee employee;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> EmployeeRate(<span style=color:#4fd6be>int</span> employeeId)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.employee = Employee.GetEmployeeById(employeeId);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>decimal</span> CalculateFlatRate()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> employee.Rate;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>decimal</span> CalculateSpecialRate()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (employee.IsIdle)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> employee.Rate;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#4fd6be>decimal</span> factor = 
+</span></span><span style=display:flex><span>      ((employee.Rate * employee.Experience) / <span style=color:#ffc777>0.75</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> factor * <span style=color:#ffc777>15.75</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>As we can see from this simple example the &ldquo;EmployeeRate&rdquo; class is dependent upon the &ldquo;Employee&rdquo; class.
+Not only that but we can also see that in order to get the &ldquo;Employee&rdquo; class we need to make a call to the database to retrieve the information.</p><p>Let&rsquo;s suppose that someone else is trying to create an instance of this class.
+Another developer would never know that this class uses the &ldquo;Employee&rdquo; class and it might very well be that they are already working an &ldquo;Employee&rdquo; class.
+So if instead we refactor this class to follow the Dependency Injection pattern, anybody would be able to quickly tell that the &ldquo;Employee&rdquo; class is indeed a dependent class.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>EmployeeRate</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>protected</span> Employee employee;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> EmployeeRate(Employee employee)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.employee = employee;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>decimal</span> CalculateFlatRate()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> employee.Rate;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>virtual</span> <span style=color:#4fd6be>decimal</span> CalculateSpecialRate()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (employee.IsIdle)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> employee.Rate;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#4fd6be>decimal</span> factor = 
+</span></span><span style=display:flex><span>      ((employee.Rate * employee.Experience) / <span style=color:#ffc777>0.75</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> factor * <span style=color:#ffc777>15.75</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><em>(If you are like me you more than likely wouldn&rsquo;t stop there.
+After looking further into the code you might have seen that there is no real need to have a constructor for this class at all.
+Instead, simply make the two methods static and pass the &ldquo;Employee&rdquo; class in as a parameter.
+For the purpose of this post however&mldr; let&rsquo;s just play along)</em></p><p><strong>Let&rsquo;s now take a look at how the inheritance model would benefit from using the Dependency Injection pattern</strong></p><p>Let&rsquo;s once again take the original example and create a new class called &ldquo;ManagerRate.&rdquo;
+This class needs to do some things that a normal employee wouldn&rsquo;t have to do like factor in the number of employees they manage.
+Regardless of the reason, we need to calculate a managers rate differently then an employee.
+We could add a &ldquo;switch&rdquo; statement or &ldquo;if &mldr; else&rdquo; condition to apply this logic but&mldr; being good little developers we created this class.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>ManagerRate</span> : EmployeeRate
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> ManagerRate(<span style=color:#4fd6be>int</span> employeeId)
+</span></span><span style=display:flex><span>    : <span style=color:#c099ff>base</span>(employeeId)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>override</span> <span style=color:#4fd6be>decimal</span> CalculateSpecialRate()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (employee.IsIdle)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> employee.Rate;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#4fd6be>decimal</span> factor = 
+</span></span><span style=display:flex><span>      ((employee.Rate * employee.Experience) / <span style=color:#ffc777>0.5</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> factor * <span style=color:#ffc777>16.05</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Here we can see that it is not clear to the &ldquo;ManagerRate&rdquo; class what dependencies the base class requires.
+Not only that but if we put our &ldquo;extensibility&rdquo; hat on for a second we can see that if an employee and a manager are ever
+broken up to be separate classes then we would have a problem and would more than likely result in a change in logic in both classes.
+Let&rsquo;s now see what our &ldquo;ManagerRate&rdquo; class would like from our refactored version.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>ManagerRate</span> : EmployeeRate
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> ManagerRate(Employee employee)
+</span></span><span style=display:flex><span>    : <span style=color:#c099ff>base</span>(employee)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>override</span> <span style=color:#4fd6be>decimal</span> CalculateSpecialRate()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (employee.IsIdle)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>return</span> employee.Rate;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#4fd6be>decimal</span> factor = 
+</span></span><span style=display:flex><span>      ((employee.Rate * employee.Experience) / <span style=color:#ffc777>0.5</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> factor * <span style=color:#ffc777>16.05</span>;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Now the &ldquo;ManagerRate&rdquo; class can clearly see what the dependencies are for the base class.
+And if we put our &ldquo;extensibility&rdquo; hat back on we could see that we might still have an issue if an employee and a manager are
+separated into two classes but the code change would only need to occur in one class and more than likely it would only require they type to change.
+If we really wanted to do it up correctly we would create an interface for the &ldquo;Employee&rdquo; class.</p><p><strong>Finally, let&rsquo;s look at how testing can benefit from our use of the Dependency Injection pattern</strong></p><p>If we go back to the original example and look at what happened in the constructor we would see that the constructor called a static method on the
+&ldquo;Employee&rdquo; class named &ldquo;GetById.&rdquo; Suppose now that we want to test the &ldquo;EmployeeRate&rdquo; class to ensure that it&rsquo;s &ldquo;CalculateSpecialRate&rdquo; method returned
+the correct value. How would we go about doing that?</p><p>First we would need to make sure that we have a database with valid (or good) data in it for a given &ldquo;Employee.&rdquo;
+Normally we would insert a new row in the corresponding table and record the resulting primary key or &ldquo;id.&rdquo;
+Then when we ran our unit test we would need to make sure that we pass in the correct &ldquo;id&rdquo; to our &ldquo;EmployeeRate&rdquo; constructor.</p><p>If, however, our data gets deleted, modified, or someone else is running our unit tests in another environment then our tests would fail.
+It wouldn&rsquo;t fail because our code is wrong but because the supporting data is missing. So what are we really testing in this scenario&mldr; the code or the data?</p><p>If we follow the Dependency Injection pattern as we did in our refactored code then we would be able to create reliable and &ldquo;database proof&rdquo; unit tests.
+By passing in a mock or stub of an &ldquo;Employee&rdquo; class, the data being used will always be the same and our unit tests will always be testing the code and not the data.</p><p>Another benefit that we did not have time to cover is how Dependency Injection is used in Aspect Oriented Programming (AOP).
+There are plenty of other posts out there that cover AOP that I recommend you read.
+In short&mldr; being able to intercept calls and inject other objects, values, or classes based on the cross-cutting concerns is not only the
+point behind AOP but dramatically reduces code and increases code reuse.</p><p>In this post we covered three out of many benefits to using Dependency Injection.
+Hopefully the examples drive this point home and starts to make you rethink the way you design and write code in your everyday life.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/solid title=SOLID>SOLID</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/education title=Education>Education</a></div></div><h6 data-label=meta>Posted on Thursday, April 3, 2008</h6></section><section class=navigation><a href=/post/2008-03-26-inversion-of-control-and-dependency-injection/>Previous
+</a><a href=/post/2008-04-18-new-aspnet-mvc-source-drop/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

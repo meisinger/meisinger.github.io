@@ -1,0 +1,93 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="Recursive Mocks"><meta property="og:title" content="Recursive Mocks"><meta property="twitter:title" content="Recursive Mocks"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2013-08-20-recursive-mocks/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>Recursive Mocks - Meisinger Two</title><link rel=canonical href=/post/2013-08-20-recursive-mocks/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>Recursive Mocks</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+3 minute read</h6></section><section class=content><p>I have been going through all of the unit tests for Rhino Mocks attempting to get the first “alpha” release ready.
+One of the sets of unit tests that were failing (miserably) were the “Recursive Mocks.” I struggled with this for a while.
+I could implement the feature as intended or simply ignore it and change the unit tests.</p><p>Not all of us may know what a Recursive Mock looks like and what the feature enables. Let’s take a quick look at an example.
+First we will look at how the scenario is commonly implemented followed by the Recursive Mock feature.</p><p>The scenario is fairly straightforward and common; two interfaces are being mocked where one of the interfaces contains a method which returns the other interface:</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>interface</span> <span style=color:#ff966c>IChannel</span> {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>bool</span> IsOpen();
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>interface</span> <span style=color:#ff966c>IConnection</span> {
+</span></span><span style=display:flex><span>  IChannel CreateChannel(<span style=color:#4fd6be>string</span> path);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The most common way to mock the <code>IsOpen</code> method is as follows:</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Scenario_Common_Approach() { 
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> connection = Repository.Mock&lt;IConnection&gt;();
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> channel = Repository.Mock&lt;IChannel&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  channel.Stub(x =&gt; x.IsOpen())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>true</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(Arg&lt;<span style=color:#4fd6be>string</span>&gt;.Is.Anything))
+</span></span><span style=display:flex><span>    .Return(channel);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// some interesting test here </span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>With the Recursive Mock feature, however, this scenario could be mocked in the following way:</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Scenario_Recursive_Approach() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> connection = Repository.Mock&lt;IConnection&gt;();
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(Arg&lt;<span style=color:#4fd6be>string</span>&gt;.Is.Anything).IsOpen())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>true</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// some interesting test here</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>While this is a contrived example, what we can see from the Recursive Mock approach is that we don’t need to create a mock for <code>IChannel</code>.
+Rhino Mocks will actually create a mocked object on-the-fly.</p><p>Why would anyone ever use a Recursive Mock?</p><p>Imagine what would happen if you had three separate “paths” that you wanted to test. For the first path the <code>IsOpen</code> should return <code>true</code>.
+For the second path <code>IsOpen</code> should return <code>false</code>. For the third path <code>IsOpen</code> should throw an exception.</p><p>That would require three separate <code>IChannel</code> mocked objects (and stubs):</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Three_Path_Monty() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> connection = Repository.Mock&lt;IConnection&gt;();
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> channelOk = Repository.Mock&lt;IChannel&gt;();
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> channelFail = Repository.Mock&lt;IChannel&gt;();
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> channelThrow = Repository.Mock&lt;IChannel&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(<span style=color:#c3e88d>&#34;path-ok&#34;</span>))
+</span></span><span style=display:flex><span>    .Return(channelOk);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(<span style=color:#c3e88d>&#34;path-fail&#34;</span>))
+</span></span><span style=display:flex><span>    .Return(channelFail);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(<span style=color:#c3e88d>&#34;path-throw&#34;</span>))
+</span></span><span style=display:flex><span>    .Return(channelThrow);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  channelOk.Stub(x =&gt; x.IsOpen())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>true</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  channelFail.Stub(x =&gt; x.IsOpen())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  channelThrow.Stub(x =&gt; x.IsOpen())
+</span></span><span style=display:flex><span>    .Throws(<span style=color:#c099ff>new</span> Exception(<span style=color:#c3e88d>&#34;error&#34;</span>));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// something interesting</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The Recursive Mock way… much easier to read:</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Fact]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Three_Path_Easy() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> connection = Repository.Mock&lt;IConnection&gt;();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(<span style=color:#c3e88d>&#34;path-ok&#34;</span>).IsOpen())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>true</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(<span style=color:#c3e88d>&#34;path-fail&#34;</span>).IsOpen())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>false</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  connection.Stub(x =&gt; x.CreateChannel(<span style=color:#c3e88d>&#34;path-throw&#34;</span>).IsOpen())
+</span></span><span style=display:flex><span>    .Throws(<span style=color:#c099ff>new</span> Exception(<span style=color:#c3e88d>&#34;error&#34;</span>));
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#444a73;font-style:italic>// something interesting</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>The current version of Rhino Mocks supports this well with the Record and Last Call constructs.
+With these constructs having been removed in the upcoming version, this feature may be more difficult than what it’s worth.
+At least that’s what I thought… at first.</p><p>My biggest concern was with the fact that in the upcoming version an instance of the expectation is created prior to allowing the interceptor to
+handle the actual method. With the return types from one method to the next in the chain being different than the return type of the calling
+delegate I was fearful that my dreams of no state and returning “smart” expectations were lost.</p><p>As it turns out this was mitigated through the use of the stack. When a expectation is created it is pushed onto a stack belonging to the mocked object.
+When the interceptor handles the method call it is able to check the mocked object’s stack for the latest expectation.
+Implementing the Recursive Mock feature came down to creating the “next” expectation on the fly.</p><p>There is a little bit of code clean-up required to make the implementation a little easier to read but beyond that… Recursive Mocking has been implemented.</p><p>Next up: Property Behavior.</p><p>As it stands right now, this is way more trouble than it’s worth.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/rhino-mocks title="Rhino Mocks">Rhino Mocks</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/development title=Development>Development</a></div></div><h6 data-label=meta>Posted on Tuesday, August 20, 2013</h6></section><section class=navigation><a href=/post/2013-08-13-am-i-just-getting-lazy/>Previous
+</a><a href=/post/2013-09-17-rhino-mocks-property-behavior/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

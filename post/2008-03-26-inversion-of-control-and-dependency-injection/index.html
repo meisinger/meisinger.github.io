@@ -1,0 +1,61 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="Inversion of Control and Dependency Injection"><meta property="og:title" content="Inversion of Control and Dependency Injection"><meta property="twitter:title" content="Inversion of Control and Dependency Injection"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2008-03-26-inversion-of-control-and-dependency-injection/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>Inversion of Control and Dependency Injection - Meisinger Two</title><link rel=canonical href=/post/2008-03-26-inversion-of-control-and-dependency-injection/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>Inversion of Control and Dependency Injection</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+3 minute read</h6></section><section class=content><p>MVC has not only brought about a change in how we think about designing and building web applications on the .Net framework but it has also reminded
+most of us about the Inversion of Control (IoC) and Dependency Injection patterns.
+While most of us have used these patterns before (without even knowing about it), I think that it is very important to understand what these
+patterns are, how to use them, and why they are important not only with MVC but in everyday &ldquo;coding&rdquo; life.</p><p>IoC and DI are defined and described at length in an article written back in 2004 by <a href=http://martinfowler.com/>Martin Fowler</a> named <a href=http://martinfowler.com/articles/injection.html>&ldquo;Inversion of Control Containers and the Dependency Injection pattern&rdquo;</a> that I highly recommend everyone read. I am not going to go into great details about these patterns but&mldr;</p><ul><li>IoC means that an object gets other objects that it relies on through an outside source or framework</li><li>Dependency Injection means that an object gets other objects that it relies on through it&rsquo;s constructor or set properties</li></ul><p>It is safe to say that these are the same but just remember that there is a difference.
+I have also found that when people or articles have talked about IoC they have been really talking about Dependency Injection.
+So enough about that&mldr; what does it look like?</p><p>Let&rsquo;s start with a simple class which relies on a Data Access class (named &ldquo;MyDataAccess&rdquo;) to connect to some database&mldr;</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>MyObject</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> MyDataAccess dataAccess;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> MyObject()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.dataAccess = <span style=color:#c099ff>new</span> MyDataAccess();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Imagine now that the &ldquo;MyDataAccess&rdquo; implements an interface named &ldquo;IDataAccess&rdquo; and we change the code to reflect that&mldr;</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span>publci <span style=color:#c099ff>class</span> <span style=color:#ff966c>MyObject</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> IDataAccess dataAccess;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> MyObject()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.dataAccess = (IDataAccess) <span style=color:#c099ff>new</span> MyDataAccess();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>But now if our example changes one more time&mldr; and this time we add yet another class which implements the &ldquo;IDataAccess&rdquo; interface,
+we would have to add more logic or code to determine which concrete class should be created&mldr;</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span>publci <span style=color:#c099ff>class</span> <span style=color:#ff966c>MyObject</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> IDataAccess dataAccess;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> MyObject()
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#4fd6be>int</span> type = (<span style=color:#4fd6be>int</span>)ConfigurationManager.AppSettings[<span style=color:#c3e88d>&#34;dbType&#34;</span>];
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (type == <span style=color:#ffc777>1</span>)
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>this</span>.dataAccess = (IDataAccess) <span style=color:#c099ff>new</span> MyDataAccess();
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>else</span>
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>this</span>.dataAccess = (IDataAccess) <span style=color:#c099ff>new</span> YourDataAccess();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Clearly this is going to be a problem each time we want add a new class which implements the &ldquo;IDataAccess&rdquo; interface.
+Now expand this out to several classes which depend upon an &ldquo;IDataAccess&rdquo; object and you start to see the overhead with maintaining that code.</p><p>Enter the Dependency Injection pattern where we pass in an &ldquo;IDataAccess&rdquo; object as a parameter to the constructor.
+This then moves the responsibility (or control) of creating the &ldquo;IDataAccess&rdquo; object outside of our class or outside of it&rsquo;s scope.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span>publci <span style=color:#c099ff>class</span> <span style=color:#ff966c>MyObject</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> IDataAccess dataAccess;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> MyObject(IDataAccess dataAccess)
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.dataAccess = dataAccess;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>So now any time someone creates an instance of this class they can clearly see that it needs or depends upon an &ldquo;IDataAccess&rdquo; object.
+We have also increased the test-ability of our class by being able to pass in stubs or &ldquo;mock&rdquo; objects.</p><p>In my next post I will cover more of the benefits and show it works amd how it is used in Testing, MVC and LINQ frameworks.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/solid title=SOLID>SOLID</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/education title=Education>Education</a></div></div><h6 data-label=meta>Posted on Wednesday, March 26, 2008</h6></section><section class=navigation><a href=/post/2008-03-22-aspnet-mvc-source-code-available-our-first-test/>Previous
+</a><a href=/post/2008-04-03-dependency-injection-why-should-we-care/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

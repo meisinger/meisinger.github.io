@@ -1,0 +1,60 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="Am I Just Getting Lazy?"><meta property="og:title" content="Am I Just Getting Lazy?"><meta property="twitter:title" content="Am I Just Getting Lazy?"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2013-08-13-am-i-just-getting-lazy/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>Am I Just Getting Lazy? - Meisinger Two</title><link rel=canonical href=/post/2013-08-13-am-i-just-getting-lazy/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>Am I Just Getting Lazy?</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+3 minute read</h6></section><section class=content><p>So I have been working on simplifying the Rhino Mock code base for a little while now and have been making good progress.
+While I have no empirical data yet, I fully expect this simplified code base to be faster and easier to understand.</p><p>It has been really interesting watching some of the core concepts shift from being “in your face” to a more subtle “nudge” as the code is simplified.
+For instance; generating a <strong>Strict</strong> mock versus a <strong>Dynamic</strong>, <strong>Stub</strong> or <strong>Partial</strong> mock.
+There are some very important concepts behind choosing the right “type” but what are they and how are they presented?</p><p>This has actually caused confusion in the past… and rightly so. A <strong>Strict</strong> mock is one where any method call that has not had an expectation set will throw an exception.
+A <strong>Dynamic</strong> mock is one where only those methods that have had expectations set are verified. Those methods that have no expectations simply return default values.
+A <strong>Stub</strong> mock acts just like a <strong>Dynamic</strong> mock but does not perform any verifications.
+A <strong>Partial</strong> mock… well… gives you the ability to call the original method as long as it isn’t <code>abstract</code> (and is <code>virtual</code> of course).</p><p>While this is a greatly simplified overview, it identifies a few problems.</p><p>In my mind a <strong>Strict</strong> mock is a verification concern and not a generation (or creation) decision.
+When expectations are being verified I should have the option to perform the verification strictly or not.
+The type of mocked object shouldn’t dictate that choice.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Test]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Strict_Verification() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> mock = MockRepository.Mock&lt;IPerson&gt;();
+</span></span><span style=display:flex><span>  mock.Expect(x =&gt; x.GetName())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#c3e88d>&#34;Mike&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  mock.GetName();
+</span></span><span style=display:flex><span>  mock.GetAge();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  mock.VerifyExpectations(VerificationType.Strict);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>In my mind a <strong>Stub</strong> mock is an expectation concern rather than a generation decision.
+Either you are setting up an expectation or you are stubbing out the method.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Test]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Stub_A_Stub() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> mock = MockRepository.Mock&lt;IPerson&gt;();
+</span></span><span style=display:flex><span>  mock.Stub(x =&gt; x.GetName())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#c3e88d>&#34;stub?&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  mock.Expect(x =&gt; x.GetAge())
+</span></span><span style=display:flex><span>    .Return(<span style=color:#ffc777>1</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  mock.GetName();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  mock.VerifyExpectations();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>If <strong>Stub</strong> is removed as a “type” of mock object then we also get the added benefit of eliminating the confusion around when to call <code>Expect</code> and when to call <code>Stub</code>.
+If both <strong>Strict</strong> and <strong>Stub</strong> are removed, does <strong>Dynamic</strong> make any sense?</p><p>The <strong>Partial</strong> mock is the &ldquo;most correct” decision that needs to be made when creating a mocked object.
+A <strong>Partial</strong> mock is a mixture between a concrete class and a derived proxy class that allows me to choose to execute the base method or “mock it away.”
+A <strong>Partial</strong> mocked object, however, should be the only type which would expose the <code>CallOriginalMethod</code> method.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#82aaff>[Test]</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Partial_Person() {
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> mock = MockRepository.Partial&lt;Person&gt;();
+</span></span><span style=display:flex><span>  mock.Stub(x =&gt; x.CalculatePayRate(Arg&lt;<span style=color:#4fd6be>int</span>&gt;.Is.Anything))
+</span></span><span style=display:flex><span>    .CallOriginalMethod();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#4fd6be>var</span> rate = mock.CalculatePayRate(<span style=color:#ffc777>35</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  Assert.AreEqual(<span style=color:#ffc777>11.25</span>, rate);
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Through simplification of the code Rhino Mocks will now only offer two options to create a mocked object: <strong>Mock</strong> and <strong>Partial</strong>.
+None of the core concepts have been removed but they have been muted a little.</p><p>The thing I need to figure out now is whether or not I arrived at this decision because I am too lazy to implement those different “types” or
+because it makes more sense… maybe a little bit of both.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/rhino-mocks title="Rhino Mocks">Rhino Mocks</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/development title=Development>Development</a></div></div><h6 data-label=meta>Posted on Tuesday, August 13, 2013</h6></section><section class=navigation><a href=/post/2013-07-25-simplifying-the-rhino-mocks-code-base/>Previous
+</a><a href=/post/2013-08-20-recursive-mocks/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

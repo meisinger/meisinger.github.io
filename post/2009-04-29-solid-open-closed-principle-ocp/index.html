@@ -1,0 +1,109 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="SOLID - Open Closed Principle (OCP)"><meta property="og:title" content="SOLID - Open Closed Principle (OCP)"><meta property="twitter:title" content="SOLID - Open Closed Principle (OCP)"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2009-04-29-solid-open-closed-principle-ocp/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>SOLID - Open Closed Principle (OCP) - Meisinger Two</title><link rel=canonical href=/post/2009-04-29-solid-open-closed-principle-ocp/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>SOLID - Open Closed Principle (OCP)</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+3 minute read</h6></section><section class=content><p>As stated previously&mldr; I am getting (or trying to get) back to basics.</p><p>It is my belief that developers have to often times refactor the way they think and the way they approach things from time to time to
+make sure that the basics and principles are still strong.</p><p>So let&rsquo;s take a look at one of the principles in SOLID; Open Closed Principle (OCP)</p><p>OCP simply states:</p><blockquote><p>Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification</p></blockquote><p>In my mind following this principle is not limited to inheriting from a base class and marking methods and properties as virtual.
+While I do believe that there is a time and a place for following OCP in this manner I feel that this is sometimes the only solution that
+developers think of when thinking about OCP.</p><p>Take the following example of following OCP through inheritance.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>OrderService</span> 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> IRepository repo;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> OrderService(IRepository repo) 
+</span></span><span style=display:flex><span>  { 
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.repo = repo; 
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>virtual</span> <span style=color:#c099ff>void</span> Save(Order order) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    repo.Save(order);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>EmailOrderService</span> : OrderService 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> ISmptService emailService;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> EmailOrderService(IRepository repo, ISmptService emailService) 
+</span></span><span style=display:flex><span>    : <span style=color:#c099ff>base</span>(repo) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.emailService = emailService;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>override</span> <span style=color:#c099ff>void</span> Save(Order order) {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>base</span>.Save(order);
+</span></span><span style=display:flex><span>    emailService.SendNotification(order);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Ok so now we have these classes and we are clearly following OCP but I believe that there is an alternative through use of the
+Strategy pattern which would make this a little cleaner.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>OrderService</span> 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> IRepository repo;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> OrderService(IRepository repo) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.repo = repo; 
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Save(Order order) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    repo.Save(order);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Save(Order order, IOrderStrategy strategy) 
+</span></span><span style=display:flex><span>  { 
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.Save(order);
+</span></span><span style=display:flex><span>    strategy.Process(order);
+</span></span><span style=display:flex><span>  } 
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>EmailOrderStrategy</span> : IOrderStrategy 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> ISmptService emailService;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> EmailOrderStrategy(ISmptService emailService) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.emailService = emailService; 
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Process (Order order) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    emailService.SendNotification(order);
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Here we can see that OCP is still being followed since the <strong>OrderService</strong> class is still open for extension via the <strong>IOrderStrategy</strong> and is closed for modification.</p><p>We don&rsquo;t need to mark any methods as virtual and don&rsquo;t need to inherit from the <strong>OrderService</strong> class.
+What is even better is that we could have implemented a Specification pattern along with the Strategy pattern and really get cooking.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>OrderService</span> 
+</span></span><span style=display:flex><span>{ 
+</span></span><span style=display:flex><span>  ... 
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Save(Order order, IEnumerable strategies) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.Save(order);
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>foreach</span> (<span style=color:#4fd6be>var</span> strategy <span style=color:#c099ff>in</span> strategies) 
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#c099ff>if</span> (strategy.CanProcess(order)) 
+</span></span><span style=display:flex><span>        strategy.Process(order); 
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>EmailOrderStrategy</span> : IOrderStrategy 
+</span></span><span style=display:flex><span>{ 
+</span></span><span style=display:flex><span>  ... 
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#4fd6be>bool</span> CanProcess(Order order) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> order.SendEmail; 
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  ... 
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>So I guess all this really means is that OCP shouldn&rsquo;t only be thought of as marking methods and properties as virtual.
+OCP should be thought about and reasoned about a little more deeply and carefully.</p><p>And granted the examples given here have holes and are more than likely not the best code you have ever seen but it is the ideas these examples show that should be taken.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/solid title=SOLID>SOLID</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/education title=Education>Education</a></div></div><h6 data-label=meta>Posted on Wednesday, April 29, 2009</h6></section><section class=navigation><a href=/post/2009-04-09-better-unit-testing-and-tdd/>Previous
+</a><a href=/post/2009-04-29-solid-single-responsibility-principle-srp/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

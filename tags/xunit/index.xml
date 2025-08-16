@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>XUnit on Meisinger Two</title><link>https://meisinger.github.io/tags/xunit/</link><description>Recent content in XUnit on Meisinger Two</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Thu, 27 Mar 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://meisinger.github.io/tags/xunit/index.xml" rel="self" type="application/rss+xml"/><item><title>Fun with xUnit Assert Throws and App Domains</title><link>https://meisinger.github.io/post/2014-03-27-fun-with-xunit-assert-throws-and-app-domains/</link><pubDate>Thu, 27 Mar 2014 00:00:00 +0000</pubDate><guid>https://meisinger.github.io/post/2014-03-27-fun-with-xunit-assert-throws-and-app-domains/</guid><description>&lt;p>I recently decided to update the shared libraries and tools that are used to build and unit test Rhino Mocks.&lt;/p>
+&lt;p>I updated &lt;a href="https://github.com/psake/psake">psake&lt;/a> from version 0.22 to version 4.3.1.0.
+Now I don’t know about you but that is a significant jump in version number. After the update, no problems.
+I actually find it easier to deal with and have come to the realization that I should revisit the existing tasks.&lt;/p>
+&lt;p>I then went ahead and update &lt;a href="https://github.com/xunit/xunit">xUnit&lt;/a> from version 1.1.0 to version 1.9.2.
+After the update I had a significant number of build errors. All of the build errors were concerning the &lt;code>Assert.Throws&lt;/code> extension method.
+In the old version this method had an overload that took a “message” as a parameter.
+In the latest version this overload was removed.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,94 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="SOLID - Liskov Substitution Principle (LSP)"><meta property="og:title" content="SOLID - Liskov Substitution Principle (LSP)"><meta property="twitter:title" content="SOLID - Liskov Substitution Principle (LSP)"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2009-04-30-solid-liskov-substitution-principle-lsp/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>SOLID - Liskov Substitution Principle (LSP) - Meisinger Two</title><link rel=canonical href=/post/2009-04-30-solid-liskov-substitution-principle-lsp/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>SOLID - Liskov Substitution Principle (LSP)</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+4 minute read</h6></section><section class=content><p>As stated previously… I am getting (or trying to get) back to basics.</p><p>It is my belief that developers have to often times refactor the way they think and the way they approach things from time to time to
+make sure that the basics and principles are still strong.</p><p>So let’s take a look at one of the principles in SOLID; Liskov Substitution Principle (LSP)</p><p>LSP states:</p><blockquote><p>If for each object o1 of type S there is an object o2 of type T such that for all programs P defined in terms of T, the behavior of P is unchanged when o1 is substituted for o2 then S is a subtype of T</p></blockquote><p>Right&mldr; to many this is as clear as mud.</p><p>It took me a while to understand what this principle was really talking about at first.
+Then after reading a few papers written on the subject it became a little more clear.
+What I have seen many developers do, however, is paraphrase this principle (or actually rewrite it) to make it easier to understand.</p><p>Commonly, LSP is paraphrased to state:</p><blockquote><p>Functions that use pointers or references to base classes must be able to use objects of derived classes without knowing it</p></blockquote><p>So really all we are talking about is making sure our methods use base classes or interfaces as parameters and that the method does not have
+to know about all of the derived types of the base class or the classes that implement an interface.</p><p>Perhaps it is best to use an example to better explain what this principle is talking about.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Customer</span> { ... }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Vendor</span> : Customer { ... }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>CustomerValidator</span> 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Validate(Customer customer) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (<span style=color:#4fd6be>string</span>.IsNullOrEmpty(customer.Name))
+</span></span><span style=display:flex><span>    { 
+</span></span><span style=display:flex><span>      <span style=color:#444a73;font-style:italic>// indicate that validation has failed </span>
+</span></span><span style=display:flex><span>    } 
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#4fd6be>var</span> vendor = customer <span style=color:#c099ff>as</span> Vendor;
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>if</span> (vendor != <span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>    {
+</span></span><span style=display:flex><span>      <span style=color:#444a73;font-style:italic>// we know we are dealing with a Vendor </span>
+</span></span><span style=display:flex><span>      <span style=color:#444a73;font-style:italic>// validate Vendor rules </span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Here we have a <strong>Customer</strong> class as well as a <strong>Vendor</strong> class that inherits from <strong>Customer</strong>.</p><p>In the <strong>CustomerValidator</strong> class we are correctly using the <strong>Customer</strong> class (which would allow a <strong>Customer</strong> or <strong>Vendor</strong> object to be used&mldr; good so far)
+but then the <strong>Validate</strong> method has to know about the <strong>Vendor</strong> type and therefore violates LSP.</p><p>What we can also (hopefully) see here is that we are violating the Open Closed Principle (OCP) due to the fact that any time we create
+another derived type from <strong>Customer</strong> we must modify the <strong>Validate</strong> method to handle the new type (hence it is closed for extension and is open for modification).</p><p>So how do we correct the above to remove the LSP violation?</p><p>The following is one way (and probably not the best way) to resolve the issues.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-csharp data-lang=csharp><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>class</span> <span style=color:#ff966c>Validator</span> 
+</span></span><span style=display:flex><span>{ 
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> IList errors;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> Validator() 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.errors = <span style=color:#c099ff>new</span> List();
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>void</span> Validate(IValidation validation) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    validation.Validate(errors); 
+</span></span><span style=display:flex><span>  } 
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> <span style=color:#c099ff>interface</span> <span style=color:#ff966c>IValidation</span> 
+</span></span><span style=display:flex><span>{ 
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>void</span> Validate(IList errors); 
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> CustomerValidation : IValidation 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> Customer customer;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> CustomerValidation(Customer customer) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.customer = customer;
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>virtual</span> <span style=color:#c099ff>void</span> Validate(IList errors) 
+</span></span><span style=display:flex><span>  {
+</span></span><span style=display:flex><span>    <span style=color:#444a73;font-style:italic>// if we fail validation add an error to the collection </span>
+</span></span><span style=display:flex><span>  } 
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>public</span> VendorValidation : CustomerValidation 
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>private</span> <span style=color:#c099ff>readonly</span> Vendor vendor;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> VendorValidation(Vendor vendor) 
+</span></span><span style=display:flex><span>    : <span style=color:#c099ff>base</span>(vendor) 
+</span></span><span style=display:flex><span>  { 
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>.vendor = vendor; 
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>public</span> <span style=color:#c099ff>override</span> <span style=color:#c099ff>void</span> Validate(IList errors) 
+</span></span><span style=display:flex><span>  { 
+</span></span><span style=display:flex><span>    <span style=color:#444a73;font-style:italic>// call the Customer validation routines </span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>base</span>.Validate(errors); 
+</span></span><span style=display:flex><span>    <span style=color:#444a73;font-style:italic>// if we fail validation add an error to the collection </span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Wow. We have changed things up a lot.</p><p>If we look at the <strong>Validator</strong> class we can see that the <strong>Validate</strong> method takes a parameter which allows us to pass in any class that implements
+the <strong>IValidation</strong> interface. This follows LSP because we can substitute any class which implements this interface without changing the behavior.</p><p>Not only that but the method doesn&rsquo;t need to know anything about the types which implement the interface.
+At the same time, we have also solved our OCP violation by making the <strong>CustomerValidation</strong> class open for extension and closed for modification.</p><p>One more important thing that I would like to point out that sometimes get left out when explaining LSP is that exceptions should (or must) follow the same rules.</p><p>This means that if you are throwing an exception in a method of a base class then any derived type overriding the method should throw the same type of exception.
+By doing this you can be ensured that your error handling for the base class will be correct for derived types as well.</p><p>Just something that you should keep in mind.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/solid title=SOLID>SOLID</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/education title=Education>Education</a></div></div><h6 data-label=meta>Posted on Thursday, April 30, 2009</h6></section><section class=navigation><a href=/post/2009-04-29-solid-single-responsibility-principle-srp/>Previous
+</a><a href=/post/2009-11-10-nservicebus-fifteen-minutes/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>

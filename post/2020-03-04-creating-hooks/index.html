@@ -1,0 +1,112 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><meta property="og:site_name" content="Meisinger Two"><meta property="og:type" content="article"><meta property="og:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta property="twitter:image" content="https://meisinger.github.io//assets/images/header-code.jpg"><meta name=title content="Bending Hooks to Your Will"><meta property="og:title" content="Bending Hooks to Your Will"><meta property="twitter:title" content="Bending Hooks to Your Will"><meta name=description content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="twitter:description" content="A friendly blog covering my journey through software development over the past twenty years"><meta property="og:url" content="https://meisinger.github.io/post/2020-03-04-creating-hooks/"><meta property="twitter:card" content="summary"><meta name=keyword content><link rel="shortcut icon" href=/img/favicon.ico><title>Bending Hooks to Your Will - Meisinger Two</title><link rel=canonical href=/post/2020-03-04-creating-hooks/><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css integrity=sha512-... crossorigin=anonymous referrerpolicy=no-referrer><link rel=stylesheet href=/scss/main.css></head><body><nav><div><div class=title-container><button type=button>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+<span class=icon-bar></span>
+</button>
+<a class=site-title href=/>Meisinger Two
+<span class=site-slogan>Soul Proprietor</span></a></div><div class=menu-items-container><ul class=menu-items><li><a href=/>Home</a></li><li><a href=/categories>Categories</a></li><li><a href=/tags>Tags</a></li><li><a href=/about>About</a></li></ul></div></div><script>var $toggle=document.querySelector(".navbar-toggle");$toggle.addEventListener("click",toggle_navbar);function toggle_navbar(){var t=document.querySelector("#huxblog_navbar"),n=document.querySelector(".navbar-collapse");t.className.indexOf("in")>0?(t.className=" ",setTimeout(function(){t.className.indexOf("in")<0&&(n.style.height="0px")},400)):(n.style.height="auto",t.className+=" in")}</script></nav><article><section class=header><h2 data-label=title>Bending Hooks to Your Will</h2><h6 data-label=reading-time><i class="fa fa-clock"></i>
+4 minute read</h6></section><section class=content><p>So the <code>Hook</code> revolution is upon us and we have learned a little bit about <code>useState</code> and <code>useEffect</code>.
+With these two hooks alone we can get a lot of stuff done.</p><p>Sure, there are a few other hooks that we should learn about like the <code>useReducer</code>, <code>useContext</code> and <code>useMemo</code> but we
+can get to those in the near future.</p><p>Right now, with just the <code>useState</code> and <code>useEffect</code> we can actually create our own hooks.</p><h2 id=the-example>The Example</h2><p>Let&rsquo;s start off with a basic example where a class provides us with the ability to load (what appears to be)
+some profile information.</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#444a73;font-style:italic>// Profile.js
+</span></span></span><span style=display:flex><span><span style=color:#444a73;font-style:italic></span><span style=color:#c099ff>import</span> { BehaviorSubject } from <span style=color:#c3e88d>&#39;rxjs&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>export</span> <span style=color:#c099ff>default</span> <span style=color:#c099ff>new</span> <span style=color:#c099ff>class</span> {
+</span></span><span style=display:flex><span>  constructor() {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>._controller <span style=color:#c3e88d;font-weight:700>=</span> <span style=color:#c099ff>new</span> BehaviorSubject({
+</span></span><span style=display:flex><span>      firstName<span style=color:#c3e88d;font-weight:700>:</span> <span style=color:#ffc777>null</span>,
+</span></span><span style=display:flex><span>      lastName<span style=color:#c3e88d;font-weight:700>:</span> <span style=color:#ffc777>null</span>,
+</span></span><span style=display:flex><span>      age<span style=color:#c3e88d;font-weight:700>:</span> <span style=color:#ffc777>null</span>,
+</span></span><span style=display:flex><span>      active<span style=color:#c3e88d;font-weight:700>:</span> <span style=color:#ffc777>false</span>
+</span></span><span style=display:flex><span>    })
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  get data() {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> <span style=color:#c099ff>this</span>._controller
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  load <span style=color:#c3e88d;font-weight:700>=</span> <span style=color:#c099ff>async</span> () =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#444a73;font-style:italic>// get data from some external source
+</span></span></span><span style=display:flex><span><span style=color:#444a73;font-style:italic></span>    <span style=color:#c099ff>const</span> data <span style=color:#c3e88d;font-weight:700>=</span> <span style=color:#c099ff>await</span> pull_data()
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>this</span>._controller.next(data)
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Nothing special. Just a little RxJS <code>BehaviorSubject</code> being exposed from the <code>data</code> property and a <code>load</code> method
+which pulls data from an external source and feeds it to the <code>BehaviorSubject</code> for broadcasting or emitting.</p><p>Now, let&rsquo;s move on to the presentation&mldr;</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#c099ff>import</span> React, { useState, useEffect } from <span style=color:#c3e88d>&#39;react&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>import</span> Profile from <span style=color:#c3e88d>&#39;./Profile&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>export</span> <span style=color:#c099ff>default</span> () =&gt; {
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>const</span> [profile, setProfile] <span style=color:#c3e88d;font-weight:700>=</span> useState(<span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>  useEffect(() =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>const</span> stream$ <span style=color:#c3e88d;font-weight:700>=</span> Profile.data
+</span></span><span style=display:flex><span>      .subscribe(data =&gt; {
+</span></span><span style=display:flex><span>        setProfile(data)
+</span></span><span style=display:flex><span>      })
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> () =&gt; stream$.unsubscribe()
+</span></span><span style=display:flex><span>  }, [])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>if</span> (<span style=color:#c3e88d;font-weight:700>!</span>profile) {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> (
+</span></span><span style=display:flex><span>      <span style=color:#c3e88d;font-weight:700>&lt;</span>div onClick<span style=color:#c3e88d;font-weight:700>=</span>{() =&gt; Profile.load()}<span style=color:#c3e88d;font-weight:700>&gt;</span>Load Profile<span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>return</span> (
+</span></span><span style=display:flex><span>    <span style=color:#c3e88d;font-weight:700>&lt;</span>div className<span style=color:#c3e88d;font-weight:700>=</span>{<span style=color:#c3e88d>&#39;profile&#39;</span>}<span style=color:#c3e88d;font-weight:700>&gt;</span>
+</span></span><span style=display:flex><span>      <span style=color:#c3e88d;font-weight:700>&lt;</span>div<span style=color:#c3e88d;font-weight:700>&gt;</span>{<span style=color:#c3e88d>`</span><span style=color:#c3e88d>${</span>profile.firstName<span style=color:#c3e88d>}</span><span style=color:#c3e88d> </span><span style=color:#c3e88d>${</span>profile.lastName<span style=color:#c3e88d>}</span><span style=color:#c3e88d>`</span>}<span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>      <span style=color:#c3e88d;font-weight:700>&lt;</span>div<span style=color:#c3e88d;font-weight:700>&gt;</span>{profile.active <span style=color:#c3e88d;font-weight:700>?</span> <span style=color:#c3e88d>&#39;Active&#39;</span> <span style=color:#c3e88d;font-weight:700>:</span> <span style=color:#c3e88d>&#39;Not Active&#39;</span>}<span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>We are using the <code>Profile</code> class defined earlier and subscribe to the <code>data</code> property.
+Once a value is received we update and re-render by calling <code>setProfile</code> with the given data.</p><p>Obviously we are using <code>useState</code> for the profile data and using <code>useEffect</code> to handle
+the subscription as well as the cleanup. And because we are passing an empty array (<code>[]</code>) to
+the dependency list of <code>useEffect</code> we want this to run when the component is mounted.</p><p>If we don&rsquo;t have any profile data (e.g. the initial state) then a click is provided to load the data by
+calling the <code>load</code> method on the <code>Profile</code> class.</p><p>See&mldr; simple.</p><h2 id=we-can-build-it-better-stronger-than-before>We Can Build It Better, Stronger Than Before</h2><p>So what can we improve here?</p><p>Not much but, this pattern of &ldquo;subscribe and update state&rdquo; will more than likely be something we will repeat many times.
+What if we could wrap that whole block of logic into a function?
+What if we called that function a <code>hook</code>?</p><p>Let&rsquo;s try it&mldr;</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#444a73;font-style:italic>// Hooks.js
+</span></span></span><span style=display:flex><span><span style=color:#444a73;font-style:italic></span><span style=color:#c099ff>import</span> React, { useState, useEffect } from <span style=color:#c3e88d>&#39;react&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>const</span> useSubscription <span style=color:#c3e88d;font-weight:700>=</span> (subject) =&gt; {
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>const</span> [data, setData] <span style=color:#c3e88d;font-weight:700>=</span> useState(<span style=color:#ffc777>null</span>)
+</span></span><span style=display:flex><span>  useEffect(() =&gt; {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>const</span> stream$ <span style=color:#c3e88d;font-weight:700>=</span> subject()
+</span></span><span style=display:flex><span>      .subscribe(value =&gt; setData(value))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> () =&gt; stream$.unsubscribe()
+</span></span><span style=display:flex><span>  }, [])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>return</span> data
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>export</span> useSubscription
+</span></span></code></pre></div><p>Look Mom! My first custom <code>hook</code>!</p><p>Clearly there is nothing special here that we haven&rsquo;t already seen before. Just wraps everything into a nice little
+function that we called <code>useSubscription</code>.</p><p>One difference, however, is adding the <code>subject</code> parameter to the <code>useSubscription</code> function. That parameter takes the place
+of what we had earlier with <code>Profile.data</code>. If we didn&rsquo;t do that then this function could only be used for the <code>Profile</code> class.
+By allowing the caller to pass the &ldquo;subject&rdquo; (to be subscribed too), this <code>hook</code> can be used for any similar scenario.</p><p>Let&rsquo;s see how it changes our presentation now&mldr;</p><div class=highlight><pre tabindex=0 style=color:#c8d3f5;background-color:#222436;-moz-tab-size:2;-o-tab-size:2;tab-size:2><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#c099ff>import</span> React from <span style=color:#c3e88d>&#39;react&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>import</span> Profile from <span style=color:#c3e88d>&#39;./Profile&#39;</span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>import</span> { useSubscription } from <span style=color:#c3e88d>&#39;./Hooks&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#c099ff>export</span> <span style=color:#c099ff>default</span> () =&gt; {
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>const</span> profile <span style=color:#c3e88d;font-weight:700>=</span> useSubscription(() =&gt; Profile.data)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>if</span> (<span style=color:#c3e88d;font-weight:700>!</span>profile) {
+</span></span><span style=display:flex><span>    <span style=color:#c099ff>return</span> (
+</span></span><span style=display:flex><span>      <span style=color:#c3e88d;font-weight:700>&lt;</span>div onClick<span style=color:#c3e88d;font-weight:700>=</span>{() =&gt; Profile.load()}<span style=color:#c3e88d;font-weight:700>&gt;</span>Load Profile<span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#c099ff>return</span> (
+</span></span><span style=display:flex><span>    <span style=color:#c3e88d;font-weight:700>&lt;</span>div<span style=color:#c3e88d;font-weight:700>&gt;</span>
+</span></span><span style=display:flex><span>      <span style=color:#c3e88d;font-weight:700>&lt;</span>div<span style=color:#c3e88d;font-weight:700>&gt;</span>{<span style=color:#c3e88d>`</span><span style=color:#c3e88d>${</span>profile.firstName<span style=color:#c3e88d>}</span><span style=color:#c3e88d> </span><span style=color:#c3e88d>${</span>profile.lastName<span style=color:#c3e88d>}</span><span style=color:#c3e88d>`</span>}<span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>      <span style=color:#c3e88d;font-weight:700>&lt;</span>div<span style=color:#c3e88d;font-weight:700>&gt;</span>{profile.active <span style=color:#c3e88d;font-weight:700>?</span> <span style=color:#c3e88d>&#39;Active&#39;</span> <span style=color:#c3e88d;font-weight:700>:</span> <span style=color:#c3e88d>&#39;Not Active&#39;</span>}<span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#c3e88d;font-weight:700>&lt;</span><span style=color:#c53b53>/div&gt;</span>
+</span></span><span style=display:flex><span>  )
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Here we can see now that we&rsquo;re telling <code>useSubscription</code> the subject to be used. We aren&rsquo;t limited to just the <code>Profile.data</code>
+class. Nice.</p><p>Clearly we can change this to be a little better too. For instance:</p><ul><li>Add an <code>initState</code> parameter to populate the <code>useState</code> with something other than <code>null</code></li><li>Add a return value to indicate whether or not data is present</li></ul><h2 id=that-cant-be-it-can-it>That Can&rsquo;t Be It&mldr; Can It?</h2><p>Yup. That&rsquo;s it.</p><p>A custom <code>Hook</code> is simply wrapping an existng <code>hook</code> with your own logic.</p></section><section class=footer><div class=tags><label>Tags:</label><div data-type=taxonomy><a href=/tags/react title=React>React</a></div><div data-type=taxonomy><a href=/tags/react-native title=React-Native>React-Native</a></div></div><div class=categories><label>Categories:</label><div data-type=taxonomy><a href=/categories/development title=Development>Development</a></div></div><h6 data-label=meta>Posted on Wednesday, March 4, 2020</h6></section><section class=navigation><a href=/post/2020-03-01-venture-into-the-unknown/>Previous
+</a><a href=/post/2020-03-06-the-ref-hook/>Next</a></section></article><footer><ul><li><a href=mailto:mike.meisinger@gmail.com><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fas fa-envelope fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://github.com/meisinger><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-github fa-stack-1x fa-inverse"></i></span></a></li><li><a target=_blank href=https://www.linkedin.com/in/yourlinkedinid><span class="fa-stack fa-lg"><i class="fas fa-circle fa-stack-2x"></i>
+<i class="fab fa-linkedin fa-stack-1x fa-inverse"></i></span></a></li></ul><div data-label=copyright>Copyright &copy; 2025 Mike Meisinger</div></footer></body></html>
