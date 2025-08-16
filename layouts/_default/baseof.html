@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en-us">
+{{ partial "head.html" . }}
+<body>
+{{ block "navigation" . }}
+<nav data-position="fixed">
+    {{ partial "nav.html" . }}
+</nav>
+{{ end }}
+
+{{ block "header" . }}
+<header style="background-image: url('{{ .Site.Params.header_image | relURL }}')"></header>
+{{ end }}
+
+{{ block "main" . }}
+{{ end }}
+
+{{ partial "footer.html" . }}
+</body>
+</html>

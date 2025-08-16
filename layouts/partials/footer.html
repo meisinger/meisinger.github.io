@@ -1,0 +1,58 @@
+<footer>
+    <ul>
+        {{ with .Site.Params.social.email }}
+        <li>
+            <a href="mailto:{{ . }}">
+                <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </li>
+        {{ end }}
+        {{ with .Site.Params.social.twitter }}
+        <li>
+            <a target="_blank" href="{{ . }}">
+                <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </li>
+        {{ end }}
+        {{ with .Site.Params.social.github }}
+        <li>
+            <a target="_blank" href="{{ . }}">
+                <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </li>
+        {{ end }}
+        {{ with .Site.Params.social.git }}
+        <li>
+            <a target="_blank" href="{{ . }}">
+                <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-git fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </li>
+        {{ end }}
+        {{ with .Site.Params.social.linkedin }}
+        <li>
+            <a target="_blank" href="{{ . }}">
+                <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                </span>
+            </a>
+        </li>
+        {{ end }}
+    </ul>
+
+    <div data-label="copyright">
+        Copyright &copy; {{ now.Year }} {{ .Site.Params.owner }}
+    </div>
+</footer>

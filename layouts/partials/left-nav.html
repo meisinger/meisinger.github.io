@@ -1,0 +1,15 @@
+<div>
+    {{ with .Site.Params.sidebar_avatar }}
+    <a href="{{ "/about" | relLangURL }}">
+        <img src="{{ . | relURL }}" alt="avatar" style="cursor: pointer" />
+    </a>
+    {{ end }}
+
+    {{ with .Site.Params.owner }}
+    <p class="owner">{{ . | safeHTML }}</p>
+    {{ end }}
+
+    {{ with .Site.Params.sidebar_about_description }}
+    <p class="description">{{ . | safeHTML }}</p>
+    {{ end }}
+</div>

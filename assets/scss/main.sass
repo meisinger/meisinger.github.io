@@ -1,0 +1,628 @@
+
+// =======================================
+// MODERN PALETTE & DESIGN VARIABLES
+// =======================================
+
+// Typography
+$font-family: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", Arial, sans-serif
+$base-font-size: 16px
+$heading-font-weight: 700
+$body-line-height: 1.5
+
+// Spacing
+$space-xs: 4px
+$space-sm: 10px
+$space-md: 20px
+$space-lg: 30px
+$space-xl: 50px
+
+// Breakpoints
+$breakpoint-mobile: 520px
+$breakpoint-tablet: 990px
+$breakpoint-desktop: 1200px
+
+// -- Light Theme --
+$color-bg: #f6f7f9
+$color-bg-alt: #ffffff
+$color-text: #374151        // Dark gray for text
+$color-text-alt: #1f2937    // Darker gray for headings
+
+$color-primary: #3a6ea5        // Muted blue (headers, links, accents)
+$color-secondary: #b45309      // Dark orange (subtle highlights)
+$color-accent: #64748b         // Slate blue/gray (UI accents)
+$color-muted: #3a3d42          // Muted dark gray for text
+$color-border: #e5e7eb
+$color-header: $color-primary
+$color-footer: $color-primary
+$color-link: $color-primary
+$color-link-hover: $color-secondary
+$color-code-bg: #e2e8f0
+$color-code-text: #374151       // Even darker gray for code
+$color-inverse: #ffffff
+
+// -- Dark Theme --
+$dark-bg: #181a20
+$dark-bg-alt: #22232a
+$dark-text: #e5e7eb          // Light gray for text
+$dark-text-alt: #f3f4f6      // Lighter gray for headings
+$dark-primary: #8ab4f8         // Muted blue (headers, links, accents)
+$dark-secondary: #c97b4a       // Muted dark orange
+$dark-accent: #94a3b8          // Slate blue/gray (UI accents)
+$dark-muted: #3a3d42           // Muted light gray for text
+$dark-border: #334155
+$dark-header: $dark-primary
+$dark-footer: $dark-primary
+$dark-link: $dark-primary
+$dark-link-hover: $dark-secondary
+$dark-code-bg: #23272f
+$dark-code-text: #e5e7eb
+$dark-inverse: #181a20
+
+// =======================================
+// BASE STYLES
+// =======================================
+
+body
+  box-sizing: border-box
+  margin: 0
+  padding: 0
+  font-family: $font-family
+  font-size: $base-font-size
+  line-height: $body-line-height
+  background-color: $color-bg
+  color: $color-text
+
+a, a:visited, a:active
+  color: $color-link
+  text-decoration: none
+
+a:hover
+  color: $color-link-hover
+
+header
+  background: $color-header
+  background-repeat: no-repeat
+  background-position: center center
+  background-size: cover
+  height: 300px
+
+main
+  display: grid
+  grid-template-columns: 1fr 275px
+  gap: $space-lg
+
+  &[data-category="taxonomy"]
+    margin: $space-md auto
+    padding: 15px 30px
+    width: 60vw
+    grid-template-columns: none
+    grid-template-rows: $space-md auto 1fr
+
+  > [data-label="title"]
+    height: $space-lg
+    font-size: 1.6em
+    font-weight: $heading-font-weight
+    line-height: $space-lg
+
+  section.taxonomy
+    display: grid
+    grid-template-columns: repeat(3, minmax(150px, 225px))
+    gap: $space-md
+    margin-top: $space-md
+
+    > a
+      text-decoration: none
+
+      > div
+        display: grid
+        grid-template-columns: 1fr 50px
+        gap: $space-sm
+        border-bottom: 1px solid $color-border
+
+        &:hover
+          border-bottom-color: $color-primary
+
+    [data-label="title"],
+    [data-label="count"]
+      font-size: $base-font-size
+
+  section.taxonomy-list
+    margin-top: $space-md
+
+    [data-display="preview"] + [data-display="preview"]
+      margin-top: $space-md
+      border-top: none
+
+    + section.taxonomy-list
+      padding-top: $space-md
+      border-top: 1px solid $color-border
+
+  section.listing
+    margin-top: $space-md
+    margin-bottom: $space-md
+    padding: 0 $space-xl
+
+  section.about
+    position: relative
+    padding: 0 $space-lg
+
+footer
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  margin-top: $space-sm
+  padding: $space-lg $space-sm $space-md
+  background-color: $color-footer
+
+  ul
+    display: flex
+    flex-direction: row
+    align-items: center
+    gap: $space-lg
+    margin: 0
+    padding: 0
+    list-style: none
+
+    li
+      font-size: $base-font-size - 1px
+      font-weight: normal
+
+      i.fa-stack-2x
+        color: $color-inverse
+
+      i.fa-inverse
+        color: $color-link
+
+  [data-label="copyright"]
+    color: $color-muted
+
+nav
+  background-color: $color-bg-alt
+  border-bottom: 1px solid $color-border
+
+  &[data-position="fixed"]
+    position: fixed
+    top: 0
+    left: 0
+    right: 0
+    z-index: 200
+
+  > div
+    position: relative
+    display: flex
+    flex-direction: row
+    align-items: center
+    padding: $space-md
+
+  .title-container
+    display: flex
+    flex-direction: row-reverse
+    flex: 1
+
+    button[type="button"]
+      display: none
+
+    .site-title
+      flex: 1
+      font-size: 20px
+      font-weight: $heading-font-weight
+
+      .site-slogan
+        display: block
+        margin-top: -4px
+        margin-left: $space-xs
+        font-size: 13px
+
+  .menu-items-container
+    ul.menu-items
+      display: flex
+      flex-direction: row
+      gap: $space-lg
+      margin: 0
+      padding: 0
+      list-style: none
+
+      li
+        font-size: 20px
+        border-bottom: 2px solid transparent
+
+        &:hover
+          border-color: $color-primary
+
+        &:last-child
+          margin-right: $space-lg
+
+section.listing
+  display: grid
+  grid-template-rows: 1fr 50px
+  gap: $space-md
+
+section.about
+  display: none
+  margin-top: $space-md
+  border-left: 1px solid $color-border
+
+  a
+    display: flex
+    flex-direction: row
+    align-items: center
+    justify-content: center
+
+  img
+    border-radius: 50%
+    border-style: solid
+    border-width: 4px
+    border-color: $color-bg
+
+  .owner
+    margin-top: $space-sm
+    margin-bottom: 0
+    font-size: 20px
+    font-weight: $heading-font-weight
+    text-align: center
+
+  .slogan,
+  .description
+    font-size: 14px
+
+div.pagination
+  display: flex
+  flex-direction: row
+  align-items: center
+  margin: $space-md $space-xl
+
+  div[data-navigation="previous"],
+  div[data-navigation="next"]
+    flex: 1
+
+    a
+      justify-content: flex-end
+
+  a
+    display: flex
+    align-items: center
+    gap: $space-md
+    line-height: 20px
+    text-decoration: none
+
+div[data-display="preview"]
+  [data-label="meta"]
+    display: none
+
+  [data-content="post"]
+    font-size: 15px
+
+  + [data-display="preview"]
+    margin-top: $space-lg
+    border-top: 1px solid $color-border
+
+div[data-display="anchor"]
+  display: flex
+  flex-direction: row
+  align-items: center
+  justify-content: flex-end
+  font-size: 12px
+  line-height: 16px
+  text-transform: uppercase
+
+  a
+    text-decoration: none
+
+    &:hover
+      text-decoration: underline
+
+  i
+    margin-left: $space-xs
+    font-size: 10px
+
+article
+  display: flex
+  flex-direction: column
+  align-items: center
+  font-size: 1em
+
+  section
+    width: 60vw
+    font-size: 20px
+
+  section.content
+    pre
+      padding: $space-md
+      background: $color-code-bg
+      code
+        font-size: 14px
+        // color: $color-code-text
+
+  section.footer
+    margin-bottom: $space-md
+    div.tags,
+    div.categories
+      display: flex
+      flex-direction: row
+      align-items: center
+      gap: $space-xs
+
+      label
+        font-size: 15px
+        font-weight: $heading-font-weight
+
+    > div + div
+      margin-top: $space-xs
+
+  section.navigation
+    margin: $space-lg 0
+    display: flex
+    flex-direction: row
+    align-items: center
+    justify-content: space-between
+
+    div, a
+      display: flex
+      flex-direction: row
+      align-items: center
+      justify-content: center
+      flex: 1
+      padding: $space-md $space-lg
+      border: 1px solid $color-border
+      border-radius: 4px
+
+    a:hover
+      background-color: $color-link-hover
+      color: $color-inverse
+
+    div
+      cursor: default
+      color: $color-muted
+
+    div:first-child,
+    a:first-child
+      border-top-right-radius: 0
+      border-bottom-right-radius: 0
+
+    div:last-child,
+    a:last-child
+      border-top-left-radius: 0
+      border-bottom-left-radius: 0
+
+  [data-label="title"]
+    font-size: 1.6em
+
+  [data-label="reading-time"],
+  [data-label="meta"]
+    margin-top: $space-xs
+    font-size: 15px
+
+  [data-type="taxonomy"]
+    padding: $space-xs $space-sm
+    border: 1px solid $color-border
+    border-radius: 4px
+    font-size: 14px
+
+    &:hover
+      background-color: $color-bg-alt
+      border-color: $color-primary
+
+[data-label="title"]
+  margin-bottom: $space-xs
+  font-size: 25px
+  line-height: 28px
+
+[data-label="subtitle"]
+  margin: 0
+  font-size: 18px
+  line-height: 22px
+
+[data-label="reading-time"]
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: $space-xs
+  margin: 0
+  margin-top: $space-xs
+  font-size: 12px
+  font-weight: normal
+  line-height: 16px
+
+  i
+    font-size: 10px
+    line-height: 16px
+    color: $color-link-hover
+
+[data-label="meta"]
+  margin: 0
+  margin-top: $space-xs
+  font-size: 12px
+  font-weight: normal
+  line-height: 16px
+
+[data-label="taxonomy"]
+  margin-bottom: $space-xs
+  font-size: 22px
+  line-height: 26px
+
+[data-label="copyright"]
+  margin-top: $space-sm
+  font-size: 12px
+  font-weight: normal
+  line-height: 16px
+  color: $color-muted
+
+[data-content="post"]
+  font-size: 1em
+
+p > code
+  padding-top: 0.1rem
+  padding-bottom: 0.1rem
+  border-radius: 4px
+  font-family: Monaco, Consolas, "Lucida Console", monospace
+  font-size: 0.8em
+  background-color: $color-code-bg
+
+  &::before,
+  &::after
+    letter-spacing: -0.2em
+    content: "\00a0"
+
+// =======================================
+// DARK MODE SUPPORT
+// =======================================
+@media (prefers-color-scheme: dark)
+  body
+    background-color: $dark-bg
+    color: $dark-text
+
+  a, a:visited, a:active
+    color: $dark-link
+
+  a:hover
+    color: $dark-link-hover
+
+  header
+    // background: $dark-header
+
+  main
+    background-color: $dark-bg-alt
+
+  section.about
+    border-color: $dark-border
+
+    img
+      border-color: $dark-bg
+
+  nav
+    background-color: $dark-bg-alt
+    border-bottom: 1px solid $dark-border
+
+  .site-title
+    color: $dark-header
+
+  .site-slogan
+    color: $dark-accent
+
+  .menu-items-container ul.menu-items li
+    &:hover
+      border-color: $dark-primary
+
+  section.taxonomy
+    > a > div
+      border-bottom: 1px solid $dark-border
+
+      &:hover
+        border-bottom-color: $dark-primary
+
+  section.listing,
+  section.taxonomy-list
+    background-color: $dark-bg-alt
+
+  footer
+    background-color: $dark-footer
+
+    ul li i.fa-stack-2x
+      color: $dark-inverse
+
+    ul li i.fa-inverse
+      color: $dark-link
+
+    [data-label="copyright"]
+      color: $dark-muted
+
+  div[data-display="preview"] + [data-display="preview"]
+    border-top: 1px solid $dark-border
+
+  div[data-display="anchor"] a
+    color: $dark-link
+
+    &:hover
+      color: $dark-link-hover
+
+  article section.content pre
+    background: $dark-code-bg
+    code
+      color: $dark-code-text
+
+  article section.navigation div,
+  article section.navigation a
+    border: 1px solid $dark-border
+
+    a:hover
+      background-color: $dark-link-hover
+      color: $dark-inverse
+
+  [data-label="reading-time"] i
+    color: $dark-link-hover
+
+  [data-type="taxonomy"]
+    border-color: $dark-border
+
+    &:hover
+      background-color: $dark-bg-alt
+      border-color: $dark-primary
+
+  [data-label="copyright"]
+    color: $dark-muted
+
+  p > code
+    background-color: $dark-code-bg
+    color: $dark-code-text
+
+// =======================================
+// RESPONSIVE: DESKTOP, TABLET, MOBILE
+// =======================================
+
+@media (min-width: $breakpoint-tablet)
+  main
+    grid-template-columns: 1fr 220px
+    gap: $space-md
+
+  section.about
+    display: flex !important
+    flex-direction: column
+    align-items: center
+    padding: $space-xs
+
+  section.taxonomy
+    // grid-template-columns: repeat(2, 1fr) !important
+
+  section.listing
+    padding: 0 $space-md
+
+@media (max-width: $breakpoint-tablet)
+  main
+    grid-template-columns: 1fr
+    gap: $space-sm
+
+  section.taxonomy
+    grid-template-columns: 1fr !important
+
+  section.listing
+    padding: 0 $space-sm
+
+@media (max-width: $breakpoint-mobile)
+  header
+    height: 180px
+
+  main
+    width: 100vw
+    gap: $space-xs
+
+  article section
+    width: 95vw
+    font-size: 18px
+
+  .site-title
+    font-size: 16px
+
+  .site-slogan
+    font-size: 10px
+
+  .menu-items-container ul.menu-items
+    gap: $space-xs
+    font-size: 15px
+
+  section.listing
+    padding: 0 $space-xs
+
+  div.pagination
+    margin: $space-sm $space-md
+

@@ -1,0 +1,60 @@
+{{ define "navigation" }}
+<nav>
+    {{ partial "nav.html" . }}
+</nav>
+{{ end }}
+
+{{ define "header" }}
+<!-- blank header -->
+{{ end }}
+
+{{ define "main" }}
+<main data-category="taxonomy">
+    <div id="taxonomy" data-label="title">
+        Posts by Category
+    </div>
+
+    <section class="taxonomy">
+    {{ range .Data.Terms }}
+            <a href="#{{ .Page.Title }}">
+
+        <div>
+                <div data-label="title">
+                    {{ .Page.Title }}
+                </div>
+                <div data-label="count">
+                    {{ .Count }}
+                </div>
+        </div>
+            </a>
+    {{ end }}
+    </section>
+    {{ range $Key, $Value := site.Taxonomies.categories }}
+    <section class="taxonomy-list">
+        <div id="{{ $Value.Page.LinkTitle }}" data-label="taxonomy">
+            {{ $Value.Page.LinkTitle }}
+        </div>
+        {{ range $Value.Pages }}
+        <div data-display="preview">
+            <h2 data-label="title">
+                <a href="{{ .RelPermalink }}">
+                    {{ .Page.Title }}
+                </a>
+            </h2>
+            <h6 data-label="reading-time">
+                <i class="fa fa-clock"></i>
+                {{ .Page.ReadingTime }} minute read
+            </h6>
+            <div data-content="post">
+                {{ strings.Truncate 160 .Page.Summary }}
+            </div>
+        </div>
+        {{ end }}
+        <div data-display="anchor">
+            <a href="#taxonomy">Back To Top</a>
+            <i class="fa fa-arrow-up"></i>
+        </div>
+    </section>
+    {{ end }}
+</main>
+{{ end }}

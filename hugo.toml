@@ -1,0 +1,45 @@
+baseurl = 'https://meisinger.github.io'
+title = 'Meisinger Two'
+languageCode = 'en-us'
+preserveTaxonomyNames = true
+
+[pagination]
+pagerSize = 5
+
+[outputs]
+home = ['html', 'rss']
+page = ['html']
+
+[params]
+header_image = 'assets/images/header-code.jpg'
+description = 'A friendly blog covering my journey through software development over the past twenty years'
+slogan = 'Soul Proprietor'
+owner = 'Mike Meisinger'
+about_me = true
+
+sidebar_about_description = 'A strongly opinionated introvert who writes code for a living.'
+sidebar_avatar = 'assets/images/avatar.png'
+
+[params.social]
+rss         = true
+email       = 'mike.meisinger@gmail.com'
+#twitter    = 'full profile url in twitter'
+linkedin    = 'https://www.linkedin.com/in/yourlinkedinid'
+github      = 'https://github.com/meisinger'
+#git        = 'full profile url for git user'
+
+[markup]
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = true
+    hl_Lines = ''
+    hl_inline = false
+    lineAnchors = ''
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = 'tokyonight-moon'
+    tabWidth = 2
+    wrapperClass = 'highlight'

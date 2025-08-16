@@ -1,0 +1,85 @@
+{{ define "navigation" }}
+<nav>
+    {{ partial "nav.html" . }}
+</nav>
+{{ end }}
+
+{{ define "header" }}
+<!-- blank header -->
+{{ end }}
+
+{{ define "main" }}
+<article>
+    <section class="header">
+        <h2 data-label="title">
+            {{ .Title }}
+        </h2>
+        {{with .Params.subtitle }}
+            <h3 data-label="subtitle">
+                {{ . }}
+            </h3>
+        {{ end }}
+        <h6 data-label="reading-time">
+            <i class="fa fa-clock"></i>
+            {{ .ReadingTime }} minute read
+        </h6>
+    </section>
+    <section class="content">
+        {{ .Content }}
+    </section>
+    <section class="footer">
+        {{ if .Params.tags }}
+        <div class="tags">
+            <label>Tags:</label>
+            {{ range .Params.tags }}
+            <div data-type="taxonomy">
+                <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" title="{{ . }}">
+                {{ . }}
+                </a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+        {{ if .Params.categories }}
+        <div class="categories">
+            <label>Categories:</label>
+            {{ range .Params.categories }}
+            <div data-type="taxonomy">
+                <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}" title="{{ . }}">
+                {{ . }}
+                </a>
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
+
+        {{ if .Date }}
+        <h6 data-label="meta">
+            Posted on {{ .Date.Format "Monday, January 2, 2006" }}
+        </h6>
+        {{ end }}
+    </section>
+    <section class="navigation">
+        {{ $pages := .CurrentSection.Pages.ByDate }}
+            {{ with $pages.Next . }}
+            <a href="{{ .RelPermalink }}">
+                Previous
+            </a>
+            {{ else }}
+            <div>
+                Previous
+            </div>
+            {{ end }}
+
+            {{ with $pages.Prev . }}
+            <a href="{{ .RelPermalink }}">
+                Next
+            </a>
+            {{ else }}
+            <div>
+                Next
+            </div>
+            {{ end }}
+    </section>
+</article>
+{{ end }}

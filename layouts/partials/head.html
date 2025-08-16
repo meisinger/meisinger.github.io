@@ -1,0 +1,71 @@
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- start ogp -->
+    <meta property="og:site_name" content="{{ .Site.Title }}">
+    <meta property="og:type" content="article">
+
+    {{ if .Params.thumbnail }}
+    <meta property="og:image" content="{{ .Site.BaseURL }}{{ .Params.thumbnail }}">
+    <meta property="twitter:image" content="{{ .Site.BaseURL }}{{ .Params.thumbnail }}" />
+    {{ else if .Params.image}}
+    <meta property="og:image" content="{{ .Params.image }}">
+    <meta property="twitter:image" content="{{ .Params.image }}" />
+    {{ else }}
+    <meta property="og:image" content="{{ .Site.BaseURL }}/{{ .Site.Params.header_image }}">
+    <meta property="twitter:image" content="{{ .Site.BaseURL }}/{{ .Site.Params.header_image }}" />
+    {{ end }}
+
+    {{ if .Params.title }}
+    <meta name="title" content="{{ .Params.title }}" />
+    <meta property="og:title" content="{{ .Params.title }}" />
+    <meta property="twitter:title" content="{{ .Params.title }}" />
+    {{ else }}
+    <meta name="title" content="{{ .Site.Params.title }}" />
+    <meta property="og:title" content="{{ .Site.Params.title }}" />
+    <meta property="twitter:title" content="{{ .Site.Params.title }}" />
+    {{ end }}
+
+    {{ if .Params.description }}
+    <meta name="description" content="{{ .Params.description }}">
+    <meta property="og:description" content="{{ .Params.description }}" />
+    <meta property="twitter:description" content="{{ .Params.description }}" />
+    {{ else }}
+    <meta name="description" content="{{ .Site.Params.description }}">
+    <meta property="og:description" content="{{ .Site.Params.description }}" />
+    <meta property="twitter:description" content="{{ .Site.Params.description }}" />
+    {{ end }}
+
+    <meta property="og:url" content="{{ .Permalink }}" />
+
+    {{ if .Params.summary }}
+    <meta property="twitter:card" content="{{ .Params.summary }}" />
+    {{ else }}
+    <meta property="twitter:card" content="summary" />
+    {{ end }}
+    <!-- end ogp -->
+
+    <meta name="keyword"  content="{{ .Site.Params.keyword }}">
+    <link rel="shortcut icon" href="{{ "img/favicon.ico" | relURL }}">
+
+    {{ if .Params.Title }}
+    <title>{{ .Params.Title }} - {{ .Site.Title }}</title>
+    {{ else }}
+    <title>{{ .Site.Title }}</title>
+    {{ end }}
+    <link rel="canonical" href="{{ .RelPermalink }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    {{ with resources.Get "scss/main.sass" }}
+      {{ $opts := dict
+        "enableSourceMap" hugo.IsDevelopment
+        "outputStyle" (cond hugo.IsDevelopment "expanded" "compressed")
+        "transpiler" "dartsass"
+      }}
+      {{ with . | toCSS $opts }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}">
+      {{ end }}
+    {{ end }}
+</head>

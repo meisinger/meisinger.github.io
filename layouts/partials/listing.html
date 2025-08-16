@@ -1,0 +1,40 @@
+<div>
+    {{ range $index, $element := $.Paginator.Pages }}
+    <div data-display="preview">
+        <h2 data-label="title">
+            <a href="{{ .Permalink }}">
+                {{ .Title }}
+            </a>
+        </h2>
+        {{with .Params.subtitle }}
+            <h3 data-label="subtitle">
+                {{ . }}
+            </h3>
+        {{ end }}
+        <h6 data-label="reading-time">
+            <i class="fa fa-clock"></i>
+            {{ .ReadingTime }} minute read
+        </h6>
+        <h6 data-label="meta">
+            {{ if .Params.metadata }}
+                {{ range $index, $element := .Params.metadata }}
+                    {{ if .link }}
+                        <a href="{{ .link }}">{{ .text }}</a>
+                    {{ else }}
+                        {{ .text }}
+                    {{ end }}
+                {{ end }}
+            {{ else }}
+                Posted on {{ .Date.Format "Monday, January 2, 2006" }}
+            {{ end }}
+        </h6>
+        <div data-content="post">
+            {{ with .Description }}
+                {{ strings.Truncate 160 . }}
+            {{ else }}
+                {{ strings.Truncate 160 .Summary }}
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+</div>

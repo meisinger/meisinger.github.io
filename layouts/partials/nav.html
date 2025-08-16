@@ -1,0 +1,54 @@
+<div>
+    <div class="title-container">
+        <button type="button">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="site-title" href="{{ "/" | relLangURL }}">
+            {{ .Site.Title }}
+            {{ if .Site.Params.slogan }}
+            <span class="site-slogan">
+                {{ .Site.Params.slogan }}
+            </span>
+            {{ end }}
+        </a>
+    </div>
+    <div class="menu-items-container">
+        <ul class="menu-items">
+            <li>
+                <a href="{{ "/" | relLangURL }}">Home</a>
+            </li>
+            <li>
+                <a href="{{ "/categories" | relLangURL }}">Categories</a>
+            </li>
+            <li>
+                <a href="{{ "/tags" | relLangURL }}">Tags</a>
+            </li>
+            <li>
+                <a href="{{ "/about" | relLangURL }}">About</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    var $toggle = document.querySelector('.navbar-toggle');
+    $toggle.addEventListener('click', toggle_navbar)
+
+    function toggle_navbar(e) {
+        var $navbar = document.querySelector('#huxblog_navbar');
+        var $collapse = document.querySelector('.navbar-collapse');
+
+        if ($navbar.className.indexOf('in') > 0) {
+            $navbar.className = " ";
+            setTimeout(function(){
+                if ($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        } else {
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
