@@ -62,7 +62,6 @@
       {{ $opts := dict
         "enableSourceMap" hugo.IsDevelopment
         "outputStyle" (cond hugo.IsDevelopment "expanded" "compressed")
-        "transpiler" "dartsass"
       }}
       {{ with . | toCSS $opts }}
       <link rel="stylesheet" href="{{ .RelPermalink }}">
